@@ -18,11 +18,6 @@ contract filetransfer {
     }
 
     function redeem() public {
-        if (msg.sender == client) {
-
-        } else {
-            throw
-        }
     }
 
     function getClient() constant returns (address) {

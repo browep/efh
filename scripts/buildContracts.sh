@@ -7,6 +7,7 @@ baseDir="../src/main/resources/solidity"
 
 targets="
 greeter/Greeter
+efh/FileTransfer
 "
 
 for target in ${targets}; do
