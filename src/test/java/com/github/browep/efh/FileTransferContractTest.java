@@ -11,4 +11,13 @@ public class FileTransferContractTest {
         FileHubAdapter fileHubAdapter = new FileHubAdapter();
         Assert.assertNotNull(fileHubAdapter);
     }
+
+    @Test
+    public void canDeployContract() throws Exception {
+        FileHubAdapter fileHubAdapter = new FileHubAdapter();
+        String fileContractAddress = fileHubAdapter.deploy();
+
+        Assert.assertNotNull(fileContractAddress);
+        Assert.assertTrue(!fileContractAddress.isEmpty());
+    }
 }
