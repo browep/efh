@@ -7,6 +7,7 @@ baseDir="../src/main/resources/solidity"
 
 targets="
 greeter/Greeter
+efh/FileTransfer
 "
 
 for target in ${targets}; do
@@ -16,8 +17,8 @@ for target in ${targets}; do
     cd $baseDir
     echo "Compiling Solidity file ${target}.sol"
 
-    solc --bin --abi --optimize --overwrite \
-            --allow-paths "$(pwd)" \
+    solc --bin --abi --optimize \
+             "$(pwd)" \
             ${dirName}/${fileName}.sol -o ${dirName}/build/
     echo "Complete"
 
