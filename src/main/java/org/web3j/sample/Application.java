@@ -55,26 +55,23 @@ public class Application {
 
         // We start by creating a new web3j instance to connect to remote nodes on the network.
         // Note: if using web3j Android, use Web3jFactory.build(...
-        Web3j web3j = Web3j.build(new HttpService(
-                "https://rinkeby.infura.io/<your token>"));  // FIXME: Enter your Infura token here;
+        Web3j web3j = Web3j.build(new HttpService("http://localhost:7545"));
         log.info("Connected to Ethereum client version: "
                 + web3j.web3ClientVersion().send().getWeb3ClientVersion());
 
         // We then need to load our Ethereum wallet file
         // FIXME: Generate a new wallet file using the web3j command line tools https://docs.web3j.io/command_line.html
-        Credentials credentials =
-                WalletUtils.loadCredentials(
-                        "<password>",
-                        "/path/to/<walletfile>");
+        Credentials credentials = Credentials.create("c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3");
+
         log.info("Credentials loaded");
 
         // FIXME: Request some Ether for the Rinkeby test network at https://www.rinkeby.io/#faucet
-        log.info("Sending 1 Wei ("
+        log.info("Sending 1 Ether ("
                 + Convert.fromWei("1", Convert.Unit.ETHER).toPlainString() + " Ether)");
         TransactionReceipt transferReceipt = Transfer.sendFunds(
                 web3j, credentials,
-                "0x19e03255f667bdfd50a32722df860b1eeaf4d635",  // you can put any address here
-                BigDecimal.ONE, Convert.Unit.WEI)  // 1 wei = 10^-18 Ether
+                "0xf17f52151EbEF6C7334FAD080c5704D77216b732",  // you can put any address here
+                BigDecimal.ONE, Convert.Unit.ETHER)  // 1 wei = 10^-18 Ether
                 .send();
         log.info("Transaction complete, view it at https://rinkeby.etherscan.io/tx/"
                 + transferReceipt.getTransactionHash());
