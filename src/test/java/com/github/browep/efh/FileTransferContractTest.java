@@ -20,4 +20,12 @@ public class FileTransferContractTest {
         Assert.assertNotNull(fileContractAddress);
         Assert.assertTrue(!fileContractAddress.isEmpty());
     }
+
+    @Test
+    public void canSendRedeem() throws Exception {
+        FileHubAdapter fileHubAdapter = new FileHubAdapter();
+        fileHubAdapter.deploy();
+        String txHash = fileHubAdapter.redeem(10);
+        Assert.assertNotNull(txHash);
+    }
 }
