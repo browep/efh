@@ -4,8 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.http.HttpService;
-import org.web3j.sample.Application;
 import org.web3j.sample.contracts.generated.FileTransfer;
 import org.web3j.tx.Contract;
 import org.web3j.tx.ManagedTransaction;
@@ -44,5 +44,19 @@ public class FileHubAdapter {
                 ).send();
 
         return fileTransfer.getContractAddress();
+    }
+
+    /**
+     *
+     * @param percent percent of the transaction to redeem ( 1-100 )
+     * @return hash of the transaction
+     * @throws Exception
+     */
+    public String redeem(int percent) throws Exception {
+        TransactionReceipt transactionReceipt = fileTransfer.redeem(BigInteger.valueOf(percent)).send();
+        String txHash = transactionReceipt.getTransactionHash();
+        log.info("redeemHash: " + txHash);
+        return txHash;
+
     }
 }

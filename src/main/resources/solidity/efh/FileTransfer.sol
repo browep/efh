@@ -20,15 +20,17 @@ contract filetransfer {
 
     }
 
-    function redeem(uint8 percent) public {
+    function redeem(uint8 percent) public returns (bool) {
         if (msg.sender != client) throw;
         if (percent > 100) throw;
 
         uint256 sendAmount = this.balance / 100 * percent;
 
-        if(server.send(sendAmount)) throw;
+        server.send(sendAmount);
 
         selfdestruct(client);
+
+        return true;
     }
 
     function clawback() public {
