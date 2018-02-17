@@ -24,7 +24,7 @@ contract greeter is mortal {
 
     function newGreeting(string _greeting) public {
         Modified(greeting, _greeting, greeting, _greeting);
-        greeting = _greeting + " FOO";
+        greeting = _greeting;
     }
 
     /* main function */

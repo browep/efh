@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.RemoteCall;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.sample.contracts.generated.Greeter;
@@ -90,7 +91,8 @@ public class Application {
         log.info("Value stored in remote smart contract: " + contract.greet().send());
 
         // Lets modify the value in our smart contract
-        TransactionReceipt transactionReceipt = contract.newGreeting("Well hello again").send();
+        RemoteCall<TransactionReceipt> receiptRemoteCall = contract.newGreeting("Well hello again");
+        TransactionReceipt transactionReceipt = receiptRemoteCall.send();
 
         log.info("New value stored in remote smart contract: " + contract.greet().send());
 
