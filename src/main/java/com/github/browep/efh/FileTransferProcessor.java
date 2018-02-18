@@ -1,4 +1,4 @@
-package org.efh.filetranfer;
+package com.github.browep.efh;
 
 public class FileTransferProcessor {
 

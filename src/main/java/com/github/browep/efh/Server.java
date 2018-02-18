@@ -1,4 +1,4 @@
-package org.efh.filetranfer;
+package com.github.browep.efh;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PipedOutputStream;
-import java.io.PrintWriter;
 
 /*
  * Copyright (c) 1995, 2014, Oracle and/or its affiliates. All rights reserved.
@@ -54,15 +52,14 @@ public class Server {
 
 		int portNumber = Integer.parseInt(args[0]);
 
+		System.out.println("Server listening: " + portNumber);
+
 		try (ServerSocket serverSocket = new ServerSocket(portNumber);
 				Socket clientSocket = serverSocket.accept();
 				OutputStream clientOutputStream = clientSocket.getOutputStream();
 				BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));) {
 
-			System.out.println("Server listening: ");
-
-			String inputLine;
-
+			System.out.println("connected with: " + clientSocket.toString());
 			// Initiate conversation with client
 			FileTransferProcessor ftp = new FileTransferProcessor();
 
@@ -70,10 +67,7 @@ public class Server {
 
 			System.out.println("Contract address: " + contractAddress);
 
-			String fileName = "/tmp/source.txt";
-			System.out.println(fileName);
-
-			FileReader fileReader = new FileReader(new File(fileName));
+			String fileName = "/tmp/movie.mp4";
 
 			File file = new File(fileName);
 			InputStream inputStream = new FileInputStream(file);

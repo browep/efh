@@ -68,6 +68,10 @@ public class FileHubAdapter {
         return web3j.ethGetBalance(fileTransfer.getContractAddress(), DefaultBlockParameterName.PENDING).send().getBalance();
     }
 
+    public String getContractAddress() {
+        return fileTransfer.getContractAddress();
+    }
+
     /**
      *
      * @param percent percent of the transaction to redeem ( 1-100 )
