@@ -1,4 +1,4 @@
-pragma solidity ^0.4.2;
+pragma solidity ^0.4.8;
 
 // file transfer contract
 
@@ -8,8 +8,12 @@ contract filetransfer {
     address server;
     uint256 fileHash;
     uint128 expirationBlock;
+    int currentPercent;
 
-    function filetransfer(address _client, address _server, uint256 _fileHash, uint128 _expirationBlock) public {
+    function filetransfer(address _client, address _server, uint256 _fileHash, uint128 _expirationBlock)
+        public
+        payable
+    {
         client = _client;
         server = _server;
         fileHash = _fileHash;
@@ -17,7 +21,24 @@ contract filetransfer {
 
     }
 
-    function redeem() public {
+    function redeem(uint8 percent) public returns (bool) {
+        if (msg.sender != client) throw;
+        if (percent > 100) throw;
+
+        uint256 sendAmount = this.balance / 100 * percent;
+
+        if (!server.send(sendAmount)) throw;
+
+        selfdestruct(client);
+
+        return true;
+    }
+
+    function clawback() public {
+        if (msg.sender != client) throw;
+        if (block.number < expirationBlock) throw;
+
+        selfdestruct(client);
     }
 
     function getClient() constant returns (address) {

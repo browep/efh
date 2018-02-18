@@ -18,6 +18,7 @@ ext {
 dependencies {
     compile "org.web3j:core:$web3jVersion",
             "ch.qos.logback:logback-core:$logbackVersion",
-            "ch.qos.logback:logback-classic:$logbackVersion"
+            "ch.qos.logback:logback-classic:$logbackVersion",
+            
     testCompile "junit:junit:$junitVersion"
 }
