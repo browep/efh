@@ -1,8 +1,23 @@
 package com.github.browep.efh;
 
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.Collections;
+
+import org.ethereum.core.Transaction;
+import org.ethereum.crypto.ECKey;
+import org.ethereum.util.ByteUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
+import org.web3j.abi.FunctionEncoder;
+import org.web3j.abi.TypeReference;
+import org.web3j.abi.datatypes.Function;
+import org.web3j.abi.datatypes.Type;
 import org.web3j.crypto.Credentials;
+import org.web3j.crypto.RawTransaction;
+import org.web3j.crypto.TransactionEncoder;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
@@ -10,9 +25,7 @@ import org.web3j.protocol.http.HttpService;
 import org.web3j.sample.contracts.generated.FileTransfer;
 import org.web3j.tx.Contract;
 import org.web3j.tx.ManagedTransaction;
-
-import java.io.IOException;
-import java.math.BigInteger;
+import org.web3j.utils.Numeric;
 
 public class FileHubAdapter {
 
@@ -117,4 +130,79 @@ public class FileHubAdapter {
         return txHash;
 
     }
+    
+
+    /**
+     * create param hash for the redeem function to server
+     */
+    public String prepareParamHashToServer(int percent) {
+    		String paramHash = null;
+    		//encode Function
+    		Function function = new Function(
+                "redeem", 
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Uint8(percent)), 
+                Collections.<TypeReference<?>>emptyList());
+    		
+    		String binaryEncFunction = FunctionEncoder.encode(function);
+    		String data = binaryEncFunction; // + fileTransfer.
+
+    		BigInteger nonce = BigInteger.valueOf(-1); //fileTransfer.g.getNonce();
+    		
+    		//encode Transaction
+    		RawTransaction rawTransaction = RawTransaction.createTransaction(
+                    nonce,
+                    ManagedTransaction.GAS_PRICE,
+                    Contract.GAS_LIMIT,
+                    fileTransfer.getContractAddress(),
+                    BigInteger.valueOf(0),
+                    data);
+    		
+    		// Sign Transaction
+    		byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials);
+    		
+    		paramHash = Numeric.toHexString(signedMessage);
+    		
+    		return paramHash;
+    }
+    
+    /**
+     * create param hash for the redeem function to server
+     */
+    public String prepareParamHashToServerEthJ(int percent) {
+    		String paramHash = null;
+    		Function function = new Function(
+                "redeem", 
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Uint8(percent)), 
+                Collections.<TypeReference<?>>emptyList());
+    		
+    		String binaryEncFunction = FunctionEncoder.encode(function);
+    		String data = binaryEncFunction; // + fileTransfer.
+
+    		BigInteger nonce = BigInteger.valueOf(-1); //fileTransfer.getNonce();
+    		
+    		byte[] senderPrivateKey = Hex.decode("c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3");
+            //byte[] fromAddress = ECKey.fromPrivate(senderPrivateKey).getAddress();
+            Transaction tx = new Transaction(
+                    ByteUtil.bigIntegerToBytes(nonce),
+                    ByteUtil.longToBytesNoLeadZeroes(0),
+                    ByteUtil.longToBytesNoLeadZeroes(200000),
+                    fileTransfer.getContractAddress().getBytes(),
+                    ByteUtil.bigIntegerToBytes(BigInteger.valueOf(1)),  // 1_000_000_000 gwei, 1_000_000_000_000L szabo, 1_000_000_000_000_000L finney, 1_000_000_000_000_000_000L ether
+                    data.getBytes(),
+                    Integer.valueOf(1));
+
+            tx.sign(ECKey.fromPrivate(senderPrivateKey));
+            
+    		paramHash = Numeric.toHexString(tx.getHash());
+    		
+    		return paramHash;
+    }
+    
+    public void decryptParamHashFromCLient(String hex) {
+    		byte[] signedMessage  = Numeric.hexStringToByteArray(hex);
+    		Transaction transaction1 = new Transaction(signedMessage);
+    		transaction1.rlpParse();
+    		System.out.println("Trx decoded: "+ transaction1.getContractAddress());
+    }
+    
 }
