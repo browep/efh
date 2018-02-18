@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.sample.contracts.generated.FileTransfer;
@@ -19,6 +20,9 @@ public class FileHubAdapter {
     private final Web3j web3j;
     private final Credentials credentials;
     private FileTransfer fileTransfer;
+    private String clientAddr;
+    private String serverAddr;
+    private BigInteger fileHash;
 
     public FileHubAdapter() throws IOException {
         web3j = Web3j.build(new HttpService("http://localhost:7545"));
@@ -33,17 +37,35 @@ public class FileHubAdapter {
      * deploy
      * @return contract address
      * @throws Exception
+     * @param clientAddr
+     * @param serverAddr
+     * @param fileHashStr
+     * @param initialWeiValue
      */
-    public String deploy() throws Exception {
-        BigInteger fileHash = new BigInteger("84dad89ab80d0843733d41c124c2745d2a4c7577977cce16d7cf1b124aaa09b0", 16);
+    public String deploy(String clientAddr, String serverAddr, String fileHashStr, BigInteger initialWeiValue) throws Exception {
+        fileHash = new BigInteger(fileHashStr, 16);
+        this.clientAddr = clientAddr;
+        this.serverAddr = serverAddr;
         fileTransfer = FileTransfer.deploy(web3j, credentials, ManagedTransaction.GAS_PRICE, Contract.GAS_LIMIT,
-                BigInteger.valueOf(10000),
-                "0x627306090abaB3A6e1400e9345bC60c78a8BEf57",
-                "0xf17f52151EbEF6C7334FAD080c5704D77216b732",
+                initialWeiValue,
+                this.clientAddr,
+                this.serverAddr,
                 fileHash, BigInteger.valueOf(Long.MAX_VALUE)
                 ).send();
 
         return fileTransfer.getContractAddress();
+    }
+
+    public BigInteger getClientBalance() throws IOException {
+        return web3j.ethGetBalance(clientAddr, DefaultBlockParameterName.PENDING).send().getBalance();
+    }
+
+    public BigInteger getServerBalance() throws IOException {
+        return web3j.ethGetBalance(serverAddr, DefaultBlockParameterName.PENDING).send().getBalance();
+    }
+
+    public BigInteger getContractBalance() throws IOException {
+        return web3j.ethGetBalance(fileTransfer.getContractAddress(), DefaultBlockParameterName.PENDING).send().getBalance();
     }
 
     /**
