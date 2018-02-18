@@ -1,5 +1,7 @@
 package com.github.browep.efh;
 
+import org.web3j.abi.datatypes.Int;
+
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -9,14 +11,15 @@ import java.net.UnknownHostException;
 public class Client {
     public static void main(String[] args) throws IOException {
 
-        if (args.length != 2) {
+        if (args.length != 3) {
             System.err.println(
-                    "Usage: java Client <host name> <port number>");
+                    "Usage: java Client <host name> <port number> <percent>");
             System.exit(1);
         }
 
         String hostName = args[0];
         int portNumber = Integer.parseInt(args[1]);
+        int desiredPercent = Integer.parseInt(args[2]);
 
 
         try (
@@ -41,15 +44,16 @@ public class Client {
             int redeemPercent = 0;
 
             System.out.println("Receiving the file");
-            while ((val = in.read(bytes, 0, bytes.length)) > 0) {
+            while ((val = in.read(bytes, 0, bytes.length)) > 0 && redeemPercent <= desiredPercent) {
                 fos.write(bytes, 0, val);
                 fos.flush();
                 totalReceivedBytes += val;
-                System.out.println("received: " + totalReceivedBytes +"/" + Constants.FILE_SIZE + " creating transaction.");
                 redeemPercent = BigDecimal.valueOf(totalReceivedBytes)
                         .divide(BigDecimal.valueOf(Constants.FILE_SIZE), 3, RoundingMode.HALF_EVEN)
                         .multiply(BigDecimal.valueOf(100))
                         .intValue();
+                System.out.println("received: " + totalReceivedBytes +"/" + Constants.FILE_SIZE + " creating transaction. received: " + redeemPercent +"%, desired precent: " + desiredPercent + "%");
+
                 String redeemTx = fileHubAdapter.createRedeemTx(redeemPercent );
                 System.out.println("sending: " + redeemTx);
                 System.out.println("percent: " + redeemPercent);

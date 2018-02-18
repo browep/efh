@@ -15,24 +15,19 @@ import org.web3j.abi.FunctionEncoder;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Function;
 import org.web3j.abi.datatypes.Type;
-import org.web3j.abi.FunctionEncoder;
-import org.web3j.abi.TypeReference;
-import org.web3j.abi.datatypes.Function;
-import org.web3j.abi.datatypes.Type;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.RawTransaction;
 import org.web3j.crypto.TransactionEncoder;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
+import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.sample.contracts.generated.FileTransfer;
 import org.web3j.tx.Contract;
 import org.web3j.tx.ManagedTransaction;
 
-import org.web3j.tx.RawTransactionManager;
-import org.web3j.utils.Numeric;import org.web3j.utils.Numeric;import java.util.Arrays;
-import java.util.Collections;
+import org.web3j.utils.Numeric;
 
 public class FileHubAdapter {
 
@@ -152,9 +147,9 @@ public class FileHubAdapter {
         return Numeric.toHexString(signedTx);
     }
 
-    public void sendRedeemTx(String redeemTx) throws IOException {
+    public EthSendTransaction sendRedeemTx(String redeemTx) throws IOException {
 
-       web3j.ethSendRawTransaction(redeemTx).send();
+       return web3j.ethSendRawTransaction(redeemTx).send();
     }
 
 

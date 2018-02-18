@@ -1,5 +1,7 @@
 package com.github.browep.efh;
 
+import org.web3j.protocol.core.methods.response.EthSendTransaction;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,6 +44,7 @@ import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class Server {
 
@@ -80,17 +83,18 @@ public class Server {
 				String redeemTx = sendFile(clientOutputStream, bufferedReader);
 				clientSocket.close();
 
-				fileHubAdapter.sendRedeemTx(redeemTx);
+				EthSendTransaction ethSendTransaction = fileHubAdapter.sendRedeemTx(redeemTx);
 				System.out.println("sent transaction: " + redeemTx);
+				System.out.println("sent transaction: " + ethSendTransaction);
 			} else {
 				clientSocket.close();
 			}
 
 
 		} catch (IOException e) {
-			System.out.println(
+			System.err.println(
 					"Exception caught when trying to listen on port " + portNumber + " or listening for a connection");
-			System.out.println(e.getMessage());
+			System.err.println(e.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -110,15 +114,21 @@ public class Server {
         String redeemTransactionData = null;
         long totalSent = 0;
 
-        while ((val = inputStream.read(bytes, 0, bytes.length)) > 0 && txVerified) {
-            clientOutputStream.write(bytes, 0, val);
-            clientOutputStream.flush();
-            redeemTransactionData = bufferedReader.readLine();
-            txVerified = Verifier.verifyTransaction(redeemTransactionData);
-            totalSent += val;
-        }
+		try {
+			while ((val = inputStream.read(bytes, 0, bytes.length)) > 0 && txVerified) {
+                clientOutputStream.write(bytes, 0, val);
+                clientOutputStream.flush();
+                redeemTransactionData = bufferedReader.readLine();
+                txVerified = Verifier.verifyTransaction(redeemTransactionData);
+                totalSent += val;
+            }
+		} catch (SocketException e) {
+			System.err.println("client bailed.");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
-        if (txVerified) {
+		if (txVerified) {
             System.out.println("Finished sending file. sent: " + totalSent );
         } else {
 		    System.err.println("tx not verified: " + redeemTransactionData);
