@@ -81,6 +81,7 @@ public class Server {
 				clientSocket.close();
 
 				fileHubAdapter.sendRedeemTx(redeemTx);
+				System.out.println("sent transaction: " + redeemTx);
 			} else {
 				clientSocket.close();
 			}

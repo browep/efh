@@ -30,7 +30,7 @@ public class Client {
 
             out.println(fileHubAdapter.getContractAddress());
 
-            File outputFile = File.createTempFile("transfer", ".mp4", new File("/tmp"));
+            File outputFile = File.createTempFile("transfer", ".mp4", new File("/tmp/client_dl"));
             FileOutputStream fos = new FileOutputStream(outputFile);
 
             byte[] bytes = new byte[Constants.CHUNK_SIZE];
@@ -50,7 +50,7 @@ public class Client {
                         .divide(BigDecimal.valueOf(Constants.FILE_SIZE), 3, RoundingMode.HALF_EVEN)
                         .multiply(BigDecimal.valueOf(100))
                         .intValue();
-                String redeemTx = fileHubAdapter.createRedeemTx(redeemPercent);
+                String redeemTx = fileHubAdapter.createRedeemTx(redeemPercent );
                 System.out.println("sending: " + redeemTx);
                 System.out.println("percent: " + redeemPercent);
                 out.println(redeemTx);

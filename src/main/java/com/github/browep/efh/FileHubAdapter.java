@@ -141,7 +141,7 @@ public class FileHubAdapter {
     public String createRedeemTx(int percent) {
         Function function = new Function(
                 "redeem",
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Uint8(percent)),
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Uint256(percent)),
                 Collections.<TypeReference<?>>emptyList());
 
         String data = FunctionEncoder.encode(function);
