@@ -14,4 +14,6 @@ public class Constants {
     public static final String SERVER_PRIV_KEY = "ae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f";
 
 
+    public static final int CHUNK_SIZE = 1024 * 1024 * 10;
+    public static final long FILE_SIZE = 155611039L;
 }

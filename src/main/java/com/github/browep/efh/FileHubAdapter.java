@@ -2,7 +2,13 @@ package com.github.browep.efh;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.web3j.abi.FunctionEncoder;
+import org.web3j.abi.TypeReference;
+import org.web3j.abi.datatypes.Function;
+import org.web3j.abi.datatypes.Type;
 import org.web3j.crypto.Credentials;
+import org.web3j.crypto.RawTransaction;
+import org.web3j.crypto.TransactionEncoder;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
@@ -10,9 +16,12 @@ import org.web3j.protocol.http.HttpService;
 import org.web3j.sample.contracts.generated.FileTransfer;
 import org.web3j.tx.Contract;
 import org.web3j.tx.ManagedTransaction;
+import org.web3j.utils.Numeric;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class FileHubAdapter {
 
@@ -116,5 +125,19 @@ public class FileHubAdapter {
         log.info("redeemHash: " + txHash);
         return txHash;
 
+    }
+
+    public String createRedeemTx(int percent) {
+        Function function = new Function(
+                "redeem",
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Uint8(percent)),
+                Collections.<TypeReference<?>>emptyList());
+
+        String data = FunctionEncoder.encode(function);
+        RawTransaction rawTransaction = RawTransaction.createTransaction(BigInteger.valueOf(percent),
+                ManagedTransaction.GAS_PRICE, Contract.GAS_LIMIT, fileTransfer.getContractAddress(), data);
+        byte[] signedTx = TransactionEncoder.signMessage(rawTransaction, credentials);
+
+        return Numeric.toHexString(signedTx);
     }
 }

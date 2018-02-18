@@ -31,4 +31,8 @@ public class Verifier {
         }
     }
 
+    public static boolean verifyTransaction(String transactionData) {
+        return true;
+    }
+
 }

@@ -44,7 +44,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Server {
-	public static void main(String[] args) throws IOException {
+
+    public static void main(String[] args) throws IOException {
 
 		if (args.length != 1) {
 			System.err.println("Usage: java Server <port number>");
@@ -58,13 +59,11 @@ public class Server {
 		try (ServerSocket serverSocket = new ServerSocket(portNumber);
 				Socket clientSocket = serverSocket.accept();
 				OutputStream clientOutputStream = clientSocket.getOutputStream();
-				BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));) {
+				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));) {
 
 			System.out.println("connected with: " + clientSocket.toString());
-			// Initiate conversation with client
-			FileTransferProcessor ftp = new FileTransferProcessor();
 
-			String contractAddress = in.readLine();
+			String contractAddress = bufferedReader.readLine();
 
 			System.out.println("Contract address: " + contractAddress);
 
@@ -78,7 +77,8 @@ public class Server {
 					);
 
 			if (contractVerified) {
-				sendFile(clientOutputStream);
+				sendFile(clientOutputStream, bufferedReader);
+//				clientSocket.close();
 			} else {
 				clientSocket.close();
 			}
@@ -93,24 +93,43 @@ public class Server {
 		}
 	}
 
-	private static void sendFile(OutputStream clientOutputStream) throws IOException {
+	private static void sendFile(OutputStream clientOutputStream, BufferedReader bufferedReader) throws IOException {
 		String fileName = "/tmp/movie.mp4";
 
 		File file = new File(fileName);
 		InputStream inputStream = new FileInputStream(file);
 
 		System.out.println("Sending file: "+ file.getAbsolutePath());
-		byte[] bytes = new byte[1024];
+		byte[] bytes = new byte[Constants.CHUNK_SIZE];
 
 		int val = 0;
+		boolean txVerified = true;
+        String redeemTransactionData = null;
+        long totalSent = 0;
 
-		while ((val = inputStream.read(bytes, 0, bytes.length)) > 0) {
-            clientOutputStream.write(bytes, 0, bytes.length);
+        while ((val = inputStream.read(bytes, 0, bytes.length)) > 0 && txVerified) {
+            clientOutputStream.write(bytes, 0, val);
             clientOutputStream.flush();
+            redeemTransactionData = bufferedReader.readLine();
+            txVerified = Verifier.verifyTransaction(redeemTransactionData);
+            totalSent += val;
         }
 
-		System.out.println("Finished sending file");
-		clientOutputStream.close();
+        if (txVerified) {
+            System.out.println("Finished sending file. sent: " + totalSent );
+        } else {
+		    System.err.println("tx not verified: " + redeemTransactionData);
+        }
+
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        clientOutputStream.close();
+        bufferedReader.close();
+
 	}
 
 }

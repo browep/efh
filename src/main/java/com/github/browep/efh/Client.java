@@ -1,6 +1,8 @@
 package com.github.browep.efh;
 
 import java.io.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -31,17 +33,27 @@ public class Client {
             File outputFile = File.createTempFile("transfer", ".mp4", new File("/tmp"));
             FileOutputStream fos = new FileOutputStream(outputFile);
 
-            byte[] bytes = new byte[1024];
+            byte[] bytes = new byte[Constants.CHUNK_SIZE];
 
             int val = 0;
-            long totalBytes = 0;
+            long totalReceivedBytes = 0;
+
+            int redeemPercent = 0;
 
             System.out.println("Receiving the file");
             while ((val = in.read(bytes, 0, bytes.length)) > 0) {
-                fos.write(bytes, 0, bytes.length);
+                fos.write(bytes, 0, val);
                 fos.flush();
-                totalBytes += val;
-                System.out.println("received: " + totalBytes);
+                totalReceivedBytes += val;
+                System.out.println("received: " + totalReceivedBytes +"/" + Constants.FILE_SIZE + " creating transaction.");
+                redeemPercent = BigDecimal.valueOf(totalReceivedBytes)
+                        .divide(BigDecimal.valueOf(Constants.FILE_SIZE), 3, RoundingMode.HALF_EVEN)
+                        .multiply(BigDecimal.valueOf(100))
+                        .intValue();
+                String redeemTx = fileHubAdapter.createRedeemTx(redeemPercent);
+                System.out.println("sending: " + redeemTx);
+                System.out.println("percent: " + redeemPercent);
+                out.println(redeemTx);
 
             }
 
