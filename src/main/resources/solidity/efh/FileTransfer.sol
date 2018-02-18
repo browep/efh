@@ -42,7 +42,7 @@ contract filetransfer {
 
     function clawback() public {
         if (msg.sender != client) throw;
-        if (block.number < expirationBlock) throw;
+        if (block.number > expirationBlock) throw;
 
         selfdestruct(client);
     }

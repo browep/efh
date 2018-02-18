@@ -49,3 +49,5 @@ docs/build
 .project
 .classpath
 .settings/
+
+logs/
