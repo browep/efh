@@ -8,6 +8,7 @@ contract filetransfer {
     address server;
     uint256 fileHash;
     uint128 expirationBlock;
+    int currentPercent;
 
     function filetransfer(address _client, address _server, uint256 _fileHash, uint128 _expirationBlock)
         public
@@ -26,7 +27,7 @@ contract filetransfer {
 
         uint256 sendAmount = this.balance / 100 * percent;
 
-        server.send(sendAmount);
+        if (!server.send(sendAmount)) throw;
 
         selfdestruct(client);
 
