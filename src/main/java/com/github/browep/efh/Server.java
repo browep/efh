@@ -77,8 +77,10 @@ public class Server {
 					);
 
 			if (contractVerified) {
-				sendFile(clientOutputStream, bufferedReader);
-//				clientSocket.close();
+				String redeemTx = sendFile(clientOutputStream, bufferedReader);
+				clientSocket.close();
+
+				fileHubAdapter.sendRedeemTx(redeemTx);
 			} else {
 				clientSocket.close();
 			}
@@ -93,7 +95,7 @@ public class Server {
 		}
 	}
 
-	private static void sendFile(OutputStream clientOutputStream, BufferedReader bufferedReader) throws IOException {
+	private static String sendFile(OutputStream clientOutputStream, BufferedReader bufferedReader) throws IOException {
 		String fileName = "/tmp/movie.mp4";
 
 		File file = new File(fileName);
@@ -129,6 +131,8 @@ public class Server {
 
         clientOutputStream.close();
         bufferedReader.close();
+
+        return redeemTransactionData;
 
 	}
 

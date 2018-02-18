@@ -16,6 +16,7 @@ import org.web3j.protocol.http.HttpService;
 import org.web3j.sample.contracts.generated.FileTransfer;
 import org.web3j.tx.Contract;
 import org.web3j.tx.ManagedTransaction;
+import org.web3j.tx.RawTransactionManager;
 import org.web3j.utils.Numeric;
 
 import java.io.IOException;
@@ -139,5 +140,10 @@ public class FileHubAdapter {
         byte[] signedTx = TransactionEncoder.signMessage(rawTransaction, credentials);
 
         return Numeric.toHexString(signedTx);
+    }
+
+    public void sendRedeemTx(String redeemTx) throws IOException {
+
+       web3j.ethSendRawTransaction(redeemTx).send();
     }
 }
