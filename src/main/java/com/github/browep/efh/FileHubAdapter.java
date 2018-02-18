@@ -24,13 +24,25 @@ public class FileHubAdapter {
     private String serverAddr;
     private BigInteger fileHash;
 
-    public FileHubAdapter() throws IOException {
+    public FileHubAdapter(String privKey) throws IOException {
         web3j = Web3j.build(new HttpService("http://localhost:7545"));
         log.info("Connected to Ethereum client version: "
                 + web3j.web3ClientVersion().send().getWeb3ClientVersion());
 
-        credentials = Credentials.create("c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3");
+        credentials = Credentials.create(privKey);
+    }
 
+    public static FileHubAdapter load(String contractAddress, String privKey) throws Exception {
+        FileHubAdapter fileHubAdapter = new FileHubAdapter(privKey);
+        fileHubAdapter.load(contractAddress);
+        return fileHubAdapter;
+    }
+
+    private void load(String contractAddress) throws Exception {
+        fileTransfer = FileTransfer.load(contractAddress, web3j, credentials, ManagedTransaction.GAS_PRICE, Contract.GAS_LIMIT);
+        clientAddr = fileTransfer.getClient().send();
+        serverAddr = fileTransfer.getServer().send();
+        fileHash = fileTransfer.getFileHash().send();
     }
 
     /**
@@ -70,6 +82,26 @@ public class FileHubAdapter {
 
     public String getContractAddress() {
         return fileTransfer.getContractAddress();
+    }
+
+    public BigInteger getFileHash() throws Exception {
+        return fileTransfer.getFileHash().send();
+    }
+
+    public String getClientAddr() {
+        return clientAddr;
+    }
+
+    public String getServerAddr() {
+        return serverAddr;
+    }
+
+    public BigInteger getCurrentBlock() throws IOException {
+        return web3j.ethBlockNumber().send().getBlockNumber();
+    }
+
+    public BigInteger getExpirationBlock() throws Exception {
+        return fileTransfer.getExpirationBlock().send();
     }
 
     /**

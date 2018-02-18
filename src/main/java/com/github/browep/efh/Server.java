@@ -39,6 +39,7 @@ import java.io.OutputStream;
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -67,30 +68,49 @@ public class Server {
 
 			System.out.println("Contract address: " + contractAddress);
 
-			String fileName = "/tmp/movie.mp4";
+			FileHubAdapter fileHubAdapter = FileHubAdapter.load(contractAddress, Constants.SERVER_PRIV_KEY);
 
-			File file = new File(fileName);
-			InputStream inputStream = new FileInputStream(file);
+			boolean contractVerified = Verifier.verifyContract(fileHubAdapter,
+					Constants.INITIAL_WEI_VALUE,
+					Constants.FILE_HASH_NUM,
+					Constants.SERVER_ADDR,
+					BigInteger.valueOf(120) // 30 minutes
+					);
 
-			System.out.println("Sending file: "+ file.getAbsolutePath());
-			byte[] bytes = new byte[1024];
-
-			int val = 0;
-
-			while ((val = inputStream.read(bytes, 0, bytes.length)) > 0) {
-				clientOutputStream.write(bytes, 0, bytes.length);
-				clientOutputStream.flush();
+			if (contractVerified) {
+				sendFile(clientOutputStream);
+			} else {
+				clientSocket.close();
 			}
 
-			System.out.println("Finished sending file");
-			clientOutputStream.close();
-			
 
 		} catch (IOException e) {
 			System.out.println(
 					"Exception caught when trying to listen on port " + portNumber + " or listening for a connection");
 			System.out.println(e.getMessage());
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+	}
+
+	private static void sendFile(OutputStream clientOutputStream) throws IOException {
+		String fileName = "/tmp/movie.mp4";
+
+		File file = new File(fileName);
+		InputStream inputStream = new FileInputStream(file);
+
+		System.out.println("Sending file: "+ file.getAbsolutePath());
+		byte[] bytes = new byte[1024];
+
+		int val = 0;
+
+		while ((val = inputStream.read(bytes, 0, bytes.length)) > 0) {
+            clientOutputStream.write(bytes, 0, bytes.length);
+            clientOutputStream.flush();
+        }
+
+		System.out.println("Finished sending file");
+		clientOutputStream.close();
 	}
 
 }

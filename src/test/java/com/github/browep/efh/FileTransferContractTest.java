@@ -10,13 +10,13 @@ public class FileTransferContractTest {
 
     @Test
     public void canConnect() throws IOException {
-        FileHubAdapter fileHubAdapter = new FileHubAdapter();
+        FileHubAdapter fileHubAdapter = new FileHubAdapter(Constants.CLIENT_PRIV_KEY);
         Assert.assertNotNull(fileHubAdapter);
     }
 
     @Test
     public void canDeployContract() throws Exception {
-        FileHubAdapter fileHubAdapter = new FileHubAdapter();
+        FileHubAdapter fileHubAdapter = new FileHubAdapter(Constants.CLIENT_PRIV_KEY);
         String fileContractAddress = fileHubAdapter.deploy(Constants.CLIENT_ADDR, Constants.SERVER_ADDR, Constants.FILE_HASH_STR, Constants.INITIAL_WEI_VALUE);
 
         Assert.assertNotNull(fileContractAddress);
@@ -27,7 +27,7 @@ public class FileTransferContractTest {
 
     @Test
     public void canSendRedeem() throws Exception {
-        FileHubAdapter fileHubAdapter = new FileHubAdapter();
+        FileHubAdapter fileHubAdapter = new FileHubAdapter(Constants.CLIENT_PRIV_KEY);
         fileHubAdapter.deploy(Constants.CLIENT_ADDR, Constants.SERVER_ADDR, Constants.FILE_HASH_STR, Constants.INITIAL_WEI_VALUE);
         String txHash = fileHubAdapter.redeem(10);
         Assert.assertNotNull(txHash);
@@ -36,7 +36,7 @@ public class FileTransferContractTest {
 
     @Test
     public void redeemSendsFunds() throws Exception {
-        FileHubAdapter fileHubAdapter = new FileHubAdapter();
+        FileHubAdapter fileHubAdapter = new FileHubAdapter(Constants.CLIENT_PRIV_KEY);
         fileHubAdapter.deploy(Constants.CLIENT_ADDR, Constants.SERVER_ADDR, Constants.FILE_HASH_STR, Constants.INITIAL_WEI_VALUE);
 
         BigInteger serverBalanceBefore = fileHubAdapter.getServerBalance();

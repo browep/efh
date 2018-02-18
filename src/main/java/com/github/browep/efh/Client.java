@@ -23,7 +23,7 @@ public class Client {
                 InputStream in = socket.getInputStream();
         ) {
 
-            FileHubAdapter fileHubAdapter = new FileHubAdapter();
+            FileHubAdapter fileHubAdapter = new FileHubAdapter(Constants.CLIENT_PRIV_KEY);
             fileHubAdapter.deploy(Constants.CLIENT_ADDR, Constants.SERVER_ADDR, Constants.FILE_HASH_STR, Constants.INITIAL_WEI_VALUE);
 
             out.println(fileHubAdapter.getContractAddress());
