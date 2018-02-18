@@ -31,7 +31,9 @@ package org.efh.filetranfer;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 import java.io.BufferedReader;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -48,30 +50,44 @@ public class Client {
 
         String hostName = args[0];
         int portNumber = Integer.parseInt(args[1]);
+        
+
 
         try (
             Socket socket = new Socket(hostName, portNumber);
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-            BufferedReader in = new BufferedReader(
-                new InputStreamReader(socket.getInputStream()));
+            InputStream in = socket.getInputStream();
+        		FileOutputStream fs = new FileOutputStream("destination/target.txt");
         ) {
-        	System.out.println("Initiate communictation to server: ");
-            BufferedReader stdIn =
-                new BufferedReader(new InputStreamReader(System.in));
-            String fromServer;
-            String fromUser;
+        	
+        	System.out.println("Enter contract address: ");
+        	
+        	
+	        String contractAddress = "0x71f5dce1717283c2ad48e8da83ed8d87db7b792a";
+        	 
+	        
+	        out.println(contractAddress);
+        	
+            
+	        FileOutputStream fos = new FileOutputStream("destination/targetfile");
+	        
+	        
+	        byte[] bytes = new byte[1024];
 
-            while ((fromServer = in.readLine()) != null) {
-                System.out.println("Server: " + fromServer);
-                if (fromServer.equals("Bye."))
-                    break;
-                
-                fromUser = stdIn.readLine();
-                if (fromUser != null) {
-                    System.out.println("Client: " + fromUser);
-                    out.println(fromUser);
-                }
-            }
+			int val = 0;
+
+			System.out.println("Receiving the file");
+			while ((val = in.read(bytes, 0, bytes.length)) > 0) {
+				System.out.println("writing byte length: "+bytes.length);
+				fos.write(bytes, 0, bytes.length);
+				fos.flush();
+			}
+			
+			System.out.println("Received file");
+			
+			fos.flush();
+			fos.close();
+			
         } catch (UnknownHostException e) {
             System.err.println("Don't know about host " + hostName);
             System.exit(1);

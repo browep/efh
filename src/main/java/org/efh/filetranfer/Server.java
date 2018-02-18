@@ -1,8 +1,14 @@
 package org.efh.filetranfer;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PipedOutputStream;
 import java.io.PrintWriter;
 
 /*
@@ -50,30 +56,47 @@ public class Server {
 
 		try (ServerSocket serverSocket = new ServerSocket(portNumber);
 				Socket clientSocket = serverSocket.accept();
-				PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+				OutputStream clientOutputStream = clientSocket.getOutputStream();
 				BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));) {
 
 			System.out.println("Server listening: ");
 
-			String inputLine, outputLine;
+			String inputLine;
 
 			// Initiate conversation with client
 			FileTransferProcessor ftp = new FileTransferProcessor();
 
-			out.println("Starting comunication>>>");
+			String contractAddress = in.readLine();
 
-			while ((inputLine = in.readLine()) != null) {
-				if (ftp.continueTransfer(inputLine)) {
-					out.println("Echo: " + inputLine);
-				} else {
-					out.println("Bye");
-					break;
-				}
+			System.out.println("Contract address: " + contractAddress);
+
+			String fileName = "/tmp/source.txt";
+			System.out.println(fileName);
+
+			FileReader fileReader = new FileReader(new File(fileName));
+
+			File file = new File(fileName);
+			InputStream inputStream = new FileInputStream(file);
+
+			System.out.println("Sending file: "+ file.getAbsolutePath());
+			byte[] bytes = new byte[1024];
+
+			int val = 0;
+
+			while ((val = inputStream.read(bytes, 0, bytes.length)) > 0) {
+				clientOutputStream.write(bytes, 0, bytes.length);
+				clientOutputStream.flush();
 			}
+
+			System.out.println("Finished sending file");
+			clientOutputStream.close();
+			
+
 		} catch (IOException e) {
 			System.out.println(
 					"Exception caught when trying to listen on port " + portNumber + " or listening for a connection");
 			System.out.println(e.getMessage());
 		}
 	}
+
 }
