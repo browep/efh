@@ -7,6 +7,10 @@ sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
+    jcenter()
+    maven {
+    		url 'https://dl.bintray.com/ethereum/maven'
+    }
 }
 
 ext {
@@ -19,6 +23,7 @@ dependencies {
     compile "org.web3j:core:$web3jVersion",
             "ch.qos.logback:logback-core:$logbackVersion",
             "ch.qos.logback:logback-classic:$logbackVersion",
-            
+            "org.ethereum:ethereumj-core:1.6.3-RELEASE",
+            "io.storj:libstorj-java:0.7"
     testCompile "junit:junit:$junitVersion"
 }
