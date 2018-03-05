@@ -1,5 +1,7 @@
 package com.github.browep.efh;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.web3j.abi.datatypes.Int;
 
 import java.io.*;
@@ -9,10 +11,13 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class Client {
+
+    private static Logger logger = LoggerFactory.getLogger(Client.class);
+
     public static void main(String[] args) throws IOException {
 
         if (args.length != 3) {
-            System.err.println(
+            logger.error(
                     "Usage: java Client <host name> <port number> <percent>");
             System.exit(1);
         }
@@ -43,7 +48,7 @@ public class Client {
 
             int redeemPercent = 0;
 
-            System.out.println("Receiving the file");
+            logger.info("Receiving the file");
             while ((val = in.read(bytes, 0, bytes.length)) > 0 && redeemPercent <= desiredPercent) {
                 fos.write(bytes, 0, val);
                 fos.flush();
@@ -52,26 +57,26 @@ public class Client {
                         .divide(BigDecimal.valueOf(Constants.FILE_SIZE), 3, RoundingMode.HALF_EVEN)
                         .multiply(BigDecimal.valueOf(100))
                         .intValue();
-                System.out.println("received: " + totalReceivedBytes +"/" + Constants.FILE_SIZE + " creating transaction. received: " + redeemPercent +"%, desired precent: " + desiredPercent + "%");
+                logger.info("received: " + totalReceivedBytes +"/" + Constants.FILE_SIZE + " creating transaction. received: " + redeemPercent +"%, desired precent: " + desiredPercent + "%");
 
                 String redeemTx = fileHubAdapter.createRedeemTx(redeemPercent );
-                System.out.println("sending: " + redeemTx);
-                System.out.println("percent: " + redeemPercent);
+                logger.info("sending: " + redeemTx);
+                logger.info("percent: " + redeemPercent);
                 out.println(redeemTx);
 
             }
 
-            System.out.println("Received file: " + outputFile.getCanonicalPath());
+            logger.info("Received file: " + outputFile.getCanonicalPath());
 
             fos.flush();
             fos.close();
 
         } catch (UnknownHostException e) {
-            System.err.println("Don't know about host " + hostName);
+            logger.error("Don't know about host " + hostName, e);
             System.exit(1);
         } catch (IOException e) {
-            System.err.println("Couldn't get I/O for the connection to " +
-                    hostName);
+            logger.error("Couldn't get I/O for the connection to " +
+                    hostName, e);
             System.exit(1);
         } catch (Exception e) {
             e.printStackTrace();

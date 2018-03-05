@@ -1,5 +1,7 @@
 package com.github.browep.efh;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
 
 import java.io.BufferedReader;
@@ -47,28 +49,30 @@ import java.net.Socket;
 import java.net.SocketException;
 
 public class Server {
+	
+	private static Logger logger = LoggerFactory.getLogger(Server.class);
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 
 		if (args.length != 1) {
-			System.err.println("Usage: java Server <port number>");
+			logger.error("Usage: java Server <port number>");
 			System.exit(1);
 		}
 
 		int portNumber = Integer.parseInt(args[0]);
 
-		System.out.println("Server listening: " + portNumber);
+		logger.info("Server listening: " + portNumber);
 
 		try (ServerSocket serverSocket = new ServerSocket(portNumber);
 				Socket clientSocket = serverSocket.accept();
 				OutputStream clientOutputStream = clientSocket.getOutputStream();
 				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));) {
 
-			System.out.println("connected with: " + clientSocket.toString());
+			logger.info("connected with: " + clientSocket.toString());
 
 			String contractAddress = bufferedReader.readLine();
 
-			System.out.println("Contract address: " + contractAddress);
+			logger.info("Contract address: " + contractAddress);
 
 			FileHubAdapter fileHubAdapter = FileHubAdapter.load(contractAddress, Constants.SERVER_PRIV_KEY);
 
@@ -84,29 +88,29 @@ public class Server {
 				clientSocket.close();
 
 				EthSendTransaction ethSendTransaction = fileHubAdapter.sendRedeemTx(redeemTx);
-				System.out.println("sent transaction: " + redeemTx);
-				System.out.println("sent transaction: " + ethSendTransaction);
+				logger.info("sent transaction: " + redeemTx);
+				logger.info("sent transaction: " + ethSendTransaction);
 			} else {
 				clientSocket.close();
 			}
 
 
 		} catch (IOException e) {
-			System.err.println(
+			logger.error(
 					"Exception caught when trying to listen on port " + portNumber + " or listening for a connection");
-			System.err.println(e.getMessage());
+			logger.error(e.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	private static String sendFile(OutputStream clientOutputStream, BufferedReader bufferedReader) throws IOException {
-		String fileName = "/tmp/movie.mp4";
+		String fileName = "/Users/paulbrower/movie.mp4";
 
 		File file = new File(fileName);
 		InputStream inputStream = new FileInputStream(file);
 
-		System.out.println("Sending file: "+ file.getAbsolutePath());
+		logger.info("Sending file: "+ file.getAbsolutePath());
 		byte[] bytes = new byte[Constants.CHUNK_SIZE];
 
 		int val = 0;
@@ -123,15 +127,15 @@ public class Server {
                 totalSent += val;
             }
 		} catch (SocketException e) {
-			System.err.println("client bailed.");
+			logger.error("client bailed.");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
 		if (txVerified) {
-            System.out.println("Finished sending file. sent: " + totalSent );
+            logger.info("Finished sending file. sent: " + totalSent );
         } else {
-		    System.err.println("tx not verified: " + redeemTransactionData);
+		    logger.error("tx not verified: " + redeemTransactionData);
         }
 
         try {
