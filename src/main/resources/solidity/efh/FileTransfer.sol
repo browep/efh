@@ -21,6 +21,11 @@ contract filetransfer {
 
     }
 
+    function isRedeemable( bytes32 hash, uint8 v, bytes32 r, bytes32 s, address signerAddr) constant returns(bool) {
+        address recoveredAddr = ecrecover(hash, v, r, s);
+        return recoveredAddr == signerAddr;
+    }
+
     function redeem(uint256 percent) public returns (bool) {
         if (msg.sender != client) throw;
         if (percent > 100) throw;
@@ -42,7 +47,7 @@ contract filetransfer {
 
     function clawback() public {
         if (msg.sender != client) throw;
-        if (block.number > expirationBlock) throw;
+        if (block.number < expirationBlock) throw;
 
         selfdestruct(client);
     }

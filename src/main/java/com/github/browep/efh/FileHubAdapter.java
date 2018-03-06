@@ -2,6 +2,7 @@ package com.github.browep.efh;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -15,9 +16,7 @@ import org.web3j.abi.FunctionEncoder;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Function;
 import org.web3j.abi.datatypes.Type;
-import org.web3j.crypto.Credentials;
-import org.web3j.crypto.RawTransaction;
-import org.web3j.crypto.TransactionEncoder;
+import org.web3j.crypto.*;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
@@ -28,6 +27,8 @@ import org.web3j.tx.Contract;
 import org.web3j.tx.ManagedTransaction;
 
 import org.web3j.utils.Numeric;
+
+import static org.ethereum.util.ByteUtil.bigIntegerToBytes;
 
 public class FileHubAdapter {
 
@@ -62,12 +63,13 @@ public class FileHubAdapter {
 
     /**
      * deploy
-     * @return contract address
-     * @throws Exception
+     *
      * @param clientAddr
      * @param serverAddr
      * @param fileHashStr
      * @param initialWeiValue
+     * @return contract address
+     * @throws Exception
      */
     public String deploy(String clientAddr, String serverAddr, String fileHashStr, BigInteger initialWeiValue) throws Exception {
         fileHash = new BigInteger(fileHashStr, 16);
@@ -78,7 +80,7 @@ public class FileHubAdapter {
                 this.clientAddr,
                 this.serverAddr,
                 fileHash, BigInteger.valueOf(Long.MAX_VALUE)
-                ).send();
+        ).send();
 
         return fileTransfer.getContractAddress();
     }
@@ -120,7 +122,6 @@ public class FileHubAdapter {
     }
 
     /**
-     *
      * @param percent percent of the transaction to redeem ( 1-100 )
      * @return hash of the transaction
      * @throws Exception
@@ -149,7 +150,7 @@ public class FileHubAdapter {
 
     public EthSendTransaction sendRedeemTx(String redeemTx) throws IOException {
 
-       return web3j.ethSendRawTransaction(redeemTx).send();
+        return web3j.ethSendRawTransaction(redeemTx).send();
     }
 
 
@@ -157,73 +158,102 @@ public class FileHubAdapter {
      * create param hash for the redeem function to server
      */
     public String prepareParamHashToServer(int percent) {
-    		String paramHash = null;
-    		//encode Function
-    		Function function = new Function(
+        String paramHash = null;
+        //encode Function
+        Function function = new Function(
                 "redeem",
                 Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Uint8(percent)),
                 Collections.<TypeReference<?>>emptyList());
 
-    		String binaryEncFunction = FunctionEncoder.encode(function);
-    		String data = binaryEncFunction; // + fileTransfer.
+        String binaryEncFunction = FunctionEncoder.encode(function);
+        String data = binaryEncFunction; // + fileTransfer.
 
-    		BigInteger nonce = BigInteger.valueOf(-1); //fileTransfer.g.getNonce();
+        BigInteger nonce = BigInteger.valueOf(-1); //fileTransfer.g.getNonce();
 
-    		//encode Transaction
-    		RawTransaction rawTransaction = RawTransaction.createTransaction(
-                    nonce,
-                    ManagedTransaction.GAS_PRICE,
-                    Contract.GAS_LIMIT,
-                    fileTransfer.getContractAddress(),
-                    BigInteger.valueOf(0),
-                    data);
+        //encode Transaction
+        RawTransaction rawTransaction = RawTransaction.createTransaction(
+                nonce,
+                ManagedTransaction.GAS_PRICE,
+                Contract.GAS_LIMIT,
+                fileTransfer.getContractAddress(),
+                BigInteger.valueOf(0),
+                data);
 
-    		// Sign Transaction
-    		byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials);
+        // Sign Transaction
+        byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials);
 
-    		paramHash = Numeric.toHexString(signedMessage);
+        paramHash = Numeric.toHexString(signedMessage);
 
-    		return paramHash;
+        return paramHash;
     }
 
     /**
      * create param hash for the redeem function to server
      */
     public String prepareParamHashToServerEthJ(int percent) {
-    		String paramHash = null;
-    		Function function = new Function(
+        String paramHash = null;
+        Function function = new Function(
                 "redeem",
                 Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Uint8(percent)),
                 Collections.<TypeReference<?>>emptyList());
 
-    		String binaryEncFunction = FunctionEncoder.encode(function);
-    		String data = binaryEncFunction; // + fileTransfer.
+        String binaryEncFunction = FunctionEncoder.encode(function);
+        String data = binaryEncFunction; // + fileTransfer.
 
-    		BigInteger nonce = BigInteger.valueOf(-1); //fileTransfer.getNonce();
+        BigInteger nonce = BigInteger.valueOf(-1); //fileTransfer.getNonce();
 
-    		byte[] senderPrivateKey = Hex.decode("c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3");
-            //byte[] fromAddress = ECKey.fromPrivate(senderPrivateKey).getAddress();
-            Transaction tx = new Transaction(
-                    ByteUtil.bigIntegerToBytes(nonce),
-                    ByteUtil.longToBytesNoLeadZeroes(0),
-                    ByteUtil.longToBytesNoLeadZeroes(200000),
-                    fileTransfer.getContractAddress().getBytes(),
-                    ByteUtil.bigIntegerToBytes(BigInteger.valueOf(1)),  // 1_000_000_000 gwei, 1_000_000_000_000L szabo, 1_000_000_000_000_000L finney, 1_000_000_000_000_000_000L ether
-                    data.getBytes(),
-                    Integer.valueOf(1));
+        byte[] senderPrivateKey = Hex.decode("c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3");
+        //byte[] fromAddress = ECKey.fromPrivate(senderPrivateKey).getAddress();
+        Transaction tx = new Transaction(
+                ByteUtil.bigIntegerToBytes(nonce),
+                ByteUtil.longToBytesNoLeadZeroes(0),
+                ByteUtil.longToBytesNoLeadZeroes(200000),
+                fileTransfer.getContractAddress().getBytes(),
+                ByteUtil.bigIntegerToBytes(BigInteger.valueOf(1)),  // 1_000_000_000 gwei, 1_000_000_000_000L szabo, 1_000_000_000_000_000L finney, 1_000_000_000_000_000_000L ether
+                data.getBytes(),
+                Integer.valueOf(1));
 
-            tx.sign(ECKey.fromPrivate(senderPrivateKey));
+        tx.sign(ECKey.fromPrivate(senderPrivateKey));
 
-    		paramHash = Numeric.toHexString(tx.getHash());
+        paramHash = Numeric.toHexString(tx.getHash());
 
-    		return paramHash;
+        return paramHash;
     }
 
     public void decryptParamHashFromCLient(String hex) {
-    		byte[] signedMessage  = Numeric.hexStringToByteArray(hex);
-    		Transaction transaction1 = new Transaction(signedMessage);
-    		transaction1.rlpParse();
-    		System.out.println("Trx decoded: "+ transaction1.getContractAddress());
+        byte[] signedMessage = Numeric.hexStringToByteArray(hex);
+        Transaction transaction1 = new Transaction(signedMessage);
+        transaction1.rlpParse();
+        System.out.println("Trx decoded: " + transaction1.getContractAddress());
+    }
+
+    public HashAndSig sign(long amountInWei, ECKey ecKey) {
+        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+        buffer.putLong(amountInWei);
+        byte[] bytes = buffer.array();
+        byte[] hash = Hash.sha3(bytes);
+        ECKey.ECDSASignature ecdsaSignature = ecKey.sign(hash);
+        return new HashAndSig(ecdsaSignature, hash);
+    }
+
+    public boolean isRedeemable(String clientAddr, HashAndSig hashAndSig) throws Exception {
+        BigInteger v = BigInteger.valueOf((long) hashAndSig.ecdsaSignature.v);
+        byte[] r = bigIntegerToBytes(hashAndSig.ecdsaSignature.r, 32);
+        byte[] s = bigIntegerToBytes(hashAndSig.ecdsaSignature.s, 32);
+        return fileTransfer.isRedeemable(hashAndSig.hash,
+                v,
+                r, s, clientAddr)
+        .send();
+    }
+
+    public static class HashAndSig {
+        public final ECKey.ECDSASignature ecdsaSignature;
+        public final byte[] hash;
+
+        public HashAndSig(ECKey.ECDSASignature ecdsaSignature, byte[] hash) {
+            this.ecdsaSignature = ecdsaSignature;
+            this.hash = hash;
+        }
     }
 
 }

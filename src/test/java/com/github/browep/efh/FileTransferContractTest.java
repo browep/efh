@@ -1,7 +1,11 @@
 package com.github.browep.efh;
 
+import org.ethereum.crypto.ECKey;
 import org.junit.Assert;
 import org.junit.Test;
+import org.web3j.crypto.ECDSASignature;
+import org.web3j.crypto.ECKeyPair;
+import org.web3j.utils.Numeric;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -50,5 +54,16 @@ public class FileTransferContractTest {
         Assert.assertTrue("\nbefore: " + serverBalanceBefore +
                                  "\nafter:  " + serverBalanceAfter,
                 serverBalanceAfter.compareTo(serverBalanceBefore) > 0);
+    }
+
+    @Test
+    public void testIsRedeemable() throws Exception {
+
+        FileHubAdapter fileHubAdapter = new FileHubAdapter(Constants.CLIENT_PRIV_KEY);
+        fileHubAdapter.deploy(Constants.CLIENT_ADDR, Constants.SERVER_ADDR, Constants.FILE_HASH_STR, Constants.INITIAL_WEI_VALUE);
+        FileHubAdapter.HashAndSig hashAndSig = fileHubAdapter.sign(100, ECKey.fromPrivate(Numeric.hexStringToByteArray(Constants.CLIENT_PRIV_KEY)));
+        boolean successBool = fileHubAdapter.isRedeemable(Constants.CLIENT_ADDR, hashAndSig);
+
+        Assert.assertTrue(successBool);
     }
 }
