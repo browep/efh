@@ -21,9 +21,9 @@ contract filetransfer {
 
     }
 
-    function isRedeemable( bytes32 hash, uint8 v, bytes32 r, bytes32 s, address signerAddr) constant returns(bool) {
+    function isRedeemable( bytes32 hash, uint8 v, bytes32 r, bytes32 s) constant returns(bool) {
         address recoveredAddr = ecrecover(hash, v, r, s);
-        return recoveredAddr == signerAddr;
+        return recoveredAddr == client;
     }
 
     function redeem(uint256 percent) public returns (bool) {

@@ -236,13 +236,13 @@ public class FileHubAdapter {
         return new HashAndSig(ecdsaSignature, hash);
     }
 
-    public boolean isRedeemable(String clientAddr, HashAndSig hashAndSig) throws Exception {
+    public boolean isRedeemable(HashAndSig hashAndSig) throws Exception {
         BigInteger v = BigInteger.valueOf((long) hashAndSig.ecdsaSignature.v);
         byte[] r = bigIntegerToBytes(hashAndSig.ecdsaSignature.r, 32);
         byte[] s = bigIntegerToBytes(hashAndSig.ecdsaSignature.s, 32);
         return fileTransfer.isRedeemable(hashAndSig.hash,
                 v,
-                r, s, clientAddr)
+                r, s)
         .send();
     }
 
