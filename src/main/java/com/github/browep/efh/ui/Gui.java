@@ -26,7 +26,8 @@ public class Gui extends Application {
         URL location = getClass().getClassLoader().getResource("efh.fxml");
         Parent root = FXMLLoader.load(location);
         primaryStage.setTitle("Ethereum File Hub");
-        primaryStage.setScene(new Scene(root, 800, 480));
+        Scene scene = new Scene(root, 800, 480);
+        primaryStage.setScene(scene);
         primaryStage.show();
     }
 }

@@ -15,10 +15,13 @@
         <Insets top="40" left="40" bottom="40" right="40"></Insets>
     </padding>
     <HBox alignment="CENTER_LEFT" spacing="5">
-        <Label text="Contract Address:" /> <TextField text="0x0" />
+        <Label text="Contract Address:" /> <TextField id="contract_address_field" />
+    </HBox>
+    <HBox alignment="CENTER_LEFT" spacing="5">
+        <Label text="File Download Location:" /> <TextField id="file_location_field" />
     </HBox>
 
-    <Button>VBox Item 1</Button>
+
     <Button>VBox Item 2</Button>
     <Button>VBox Item 3</Button>
     <Button>VBox Item 4</Button>
