@@ -45,13 +45,12 @@ public class GuiController implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        logger.info("update called");
         Platform.runLater(this::updateState);
     }
 
     private void updateState() {
         Client.State state = client.getState();
-        logger.info("status updated: " + state);
+        logger.debug("status updated: " + state);
         statusLabel.setText("Status: "+ state.displayName);
     }
 }

@@ -10,7 +10,7 @@
     <!-- Change to DEBUG log protocol messages -->
     <logger name="org.web3j.protocol" level="INFO"/>
 
-    <root level="INFO">
+    <root level="DEBUG">
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>
