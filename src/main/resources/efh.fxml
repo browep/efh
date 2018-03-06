@@ -8,21 +8,34 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.TextField?>
-<VBox xmlns:fx="http://javafx.com/fxml" alignment="BASELINE_LEFT"
-      spacing="5">
+<?import javafx.scene.layout.AnchorPane?>
+<AnchorPane>
+    <VBox xmlns:fx="http://javafx.com/fxml" alignment="BASELINE_LEFT" AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+          spacing="5">
 
-    <padding>
-        <Insets top="40" left="40" bottom="40" right="40"></Insets>
-    </padding>
-    <HBox alignment="CENTER_LEFT" spacing="5">
-        <Label text="Contract Address:" /> <TextField id="contract_address_field" />
-    </HBox>
-    <HBox alignment="CENTER_LEFT" spacing="5">
-        <Label text="File Download Location:" /> <TextField id="file_location_field" />
-    </HBox>
+        <padding>
+            <Insets top="40" left="40" bottom="40" right="40"></Insets>
+        </padding>
+        <HBox alignment="CENTER_LEFT" spacing="5">
+            <Label text="Contract Address:"/>
+            <TextField id="contract_address_field"/>
+        </HBox>
+        <HBox alignment="CENTER_LEFT" spacing="5">
+            <Label text="File Download Location:"/>
+            <TextField id="file_location_field"/>
+        </HBox>
 
 
-    <Button>VBox Item 2</Button>
-    <Button>VBox Item 3</Button>
-    <Button>VBox Item 4</Button>
-</VBox>
+        <Button>VBox Item 2</Button>
+        <Button>VBox Item 3</Button>
+        <Button>VBox Item 4</Button>
+    </VBox>
+
+    <VBox alignment="CENTER" AnchorPane.bottomAnchor="20" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0">
+        <Button>
+            Start
+            <style>-fx-font: 22 arial; -fx-base: #b6e7c9;</style>
+        </Button>
+    </VBox>
+
+</AnchorPane>
