@@ -12,6 +12,7 @@ import java.net.URL;
 public class Gui extends Application {
 
     static Client client;
+    private GuiController guiController;
 
     public static void construct(Client client) {
         Gui.client = client;
@@ -29,5 +30,7 @@ public class Gui extends Application {
         Scene scene = new Scene(root, 800, 480);
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        guiController = new GuiController(scene);
     }
 }

@@ -32,7 +32,7 @@
     </VBox>
 
     <VBox alignment="CENTER" AnchorPane.bottomAnchor="20" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0">
-        <Button>
+        <Button id="start">
             Start
             <style>-fx-font: 22 arial; -fx-base: #b6e7c9;</style>
         </Button>
