@@ -142,7 +142,7 @@ public class Server {
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
 
         clientOutputStream.close();
