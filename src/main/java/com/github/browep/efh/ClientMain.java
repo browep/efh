@@ -27,6 +27,8 @@ public class ClientMain {
 
         Gui.launch();
 
+        logger.info("GUI exited");
+
     }
 
 }

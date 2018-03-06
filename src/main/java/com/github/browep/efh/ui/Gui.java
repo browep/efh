@@ -23,10 +23,10 @@ public class Gui extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        URL location = getClass().getClassLoader().getResource("sample.fxml");
+        URL location = getClass().getClassLoader().getResource("efh.fxml");
         Parent root = FXMLLoader.load(location);
-        primaryStage.setTitle("Hello World");
-        primaryStage.setScene(new Scene(root, 300, 275));
+        primaryStage.setTitle("Ethereum File Hub");
+        primaryStage.setScene(new Scene(root, 800, 480));
         primaryStage.show();
     }
 }
