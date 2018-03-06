@@ -31,6 +31,6 @@ public class Gui extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        guiController = new GuiController(scene);
+        guiController = new GuiController(scene, client);
     }
 }

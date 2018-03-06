@@ -9,6 +9,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.ProgressBar?>
 <AnchorPane>
     <VBox xmlns:fx="http://javafx.com/fxml" alignment="BASELINE_LEFT" AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
           spacing="5">
@@ -24,12 +25,14 @@
             <Label text="File Download Location:"/>
             <TextField id="file_location_field"/>
         </HBox>
+        <Label>File Download</Label>
+        <ProgressBar fx:id="download_progress"  prefWidth="${download_progress.parent.width}" progress="0.5" />
+        <Label>Ether Sent</Label>
+        <ProgressBar fx:id="ether_sent_progress"  prefWidth="${ether_sent_progress.parent.width}" progress="0.5" />
 
-
-        <Button>VBox Item 2</Button>
-        <Button>VBox Item 3</Button>
-        <Button>VBox Item 4</Button>
     </VBox>
+
+    <Label id="status" AnchorPane.leftAnchor="40" AnchorPane.bottomAnchor="60" />
 
     <VBox alignment="CENTER" AnchorPane.bottomAnchor="20" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0">
         <Button id="start">
