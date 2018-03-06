@@ -125,7 +125,7 @@ public class Server {
                 redeemTransactionData = bufferedReader.readLine();
                 txVerified = Verifier.verifyTransaction(redeemTransactionData);
                 totalSent += val;
-                Thread.sleep(300);
+                Thread.sleep(1000);
             }
 		} catch (SocketException e) {
 			logger.error("client bailed.");

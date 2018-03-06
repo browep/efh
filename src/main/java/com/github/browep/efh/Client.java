@@ -3,6 +3,7 @@ package com.github.browep.efh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -23,6 +24,8 @@ public class Client extends Observable {
     private long totalWeiSent = 0;
 
     final ExecutorService exService = Executors.newSingleThreadExecutor();
+    private FileHubAdapter fileHubAdapter;
+    private File outputFile;
 
     private void setState(State state) {
         this.state = state;
@@ -65,14 +68,14 @@ public class Client extends Observable {
 
             setState(State.CONNECTED_TO_SERVER);
 
-            FileHubAdapter fileHubAdapter = new FileHubAdapter(Constants.CLIENT_PRIV_KEY);
+            fileHubAdapter = new FileHubAdapter(Constants.CLIENT_PRIV_KEY);
             fileHubAdapter.deploy(Constants.CLIENT_ADDR, Constants.SERVER_ADDR, Constants.FILE_HASH_STR, Constants.INITIAL_WEI_VALUE);
 
             setState(State.CONTRACT_CREATED);
 
             out.println(fileHubAdapter.getContractAddress());
 
-            File outputFile = File.createTempFile("transfer", ".mp4", new File("/tmp/client_dl"));
+            outputFile = File.createTempFile("transfer", ".mp4", new File("/tmp/client_dl"));
             FileOutputStream fos = new FileOutputStream(outputFile);
 
             byte[] bytes = new byte[Constants.CHUNK_SIZE];
@@ -145,5 +148,15 @@ public class Client extends Observable {
 
     public BigInteger fileCostInWei() {
         return Constants.INITIAL_WEI_VALUE;
+    }
+
+    @Nullable
+    public String getContractAddress() {
+        return fileHubAdapter != null ? fileHubAdapter.getContractAddress() : null;
+    }
+
+    @Nullable
+    public String getDlFilePath() {
+        return outputFile != null ? outputFile.getAbsolutePath() : null;
     }
 }

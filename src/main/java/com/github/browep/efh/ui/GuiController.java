@@ -6,6 +6,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TextField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,9 +25,14 @@ public class GuiController implements Observer {
     private final Label statusLabel;
     private final ProgressBar downloadProgress;
     private final ProgressBar etherProgress;
+    private final TextField contractTextField;
+    private final TextField filePathField;
 
     public GuiController(Scene scene, Client client) {
         this.scene = scene;
+
+        contractTextField = (TextField) scene.lookup("#contract_address_field");
+        filePathField = (TextField) scene.lookup("#file_location_field");
 
         startButton = (Button) scene.lookup("#start");
         statusLabel = (Label) scene.lookup("#status");
@@ -59,6 +65,14 @@ public class GuiController implements Observer {
         statusLabel.setText("Status: "+ state.displayName);
         downloadProgress.setProgress(BigDecimal.valueOf(client.getTotalReceivedBytes()).divide(BigDecimal.valueOf(client.getTotalFileBytes()), 3, RoundingMode.HALF_EVEN).doubleValue());
         etherProgress.setProgress(BigDecimal.valueOf(client.getWeiSent()).divide(BigDecimal.valueOf(client.fileCostInWei().longValue()), 3, RoundingMode.HALF_EVEN).doubleValue());
+
+        if (client.getContractAddress() != null) {
+            contractTextField.setText(client.getContractAddress());
+        }
+
+        if (client.getDlFilePath() != null) {
+            filePathField.setText(client.getDlFilePath());
+        }
 
     }
 
