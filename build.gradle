@@ -30,5 +30,7 @@ dependencies {
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
     // https://mvnrepository.com/artifact/org.slf4j/slf4j-simple
     testCompile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
+    // https://mvnrepository.com/artifact/com.zenjava/javafx-basic-archetype
+    compile group: 'com.zenjava', name: 'javafx-basic-archetype', version: '8.1.5'
 
 }

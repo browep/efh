@@ -13,20 +13,17 @@ import java.net.UnknownHostException;
 public class Client {
 
     private static Logger logger = LoggerFactory.getLogger(Client.class);
+    private String hostName;
+    private int portNumber;
+    private int desiredPercent;
 
-    public static void main(String[] args) throws IOException {
+    public Client(String hostName, int portNumber, int desiredPercent) {
+        this.hostName = hostName;
+        this.portNumber = portNumber;
+        this.desiredPercent = desiredPercent;
+    }
 
-        if (args.length != 3) {
-            logger.error(
-                    "Usage: java Client <host name> <port number> <percent>");
-            System.exit(1);
-        }
-
-        String hostName = args[0];
-        int portNumber = Integer.parseInt(args[1]);
-        int desiredPercent = Integer.parseInt(args[2]);
-
-
+    public void start() {
         try (
                 Socket socket = new Socket(hostName, portNumber);
                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
