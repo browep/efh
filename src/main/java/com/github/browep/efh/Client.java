@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -19,6 +20,7 @@ public class Client extends Observable {
     private int portNumber;
     private int desiredPercent;
     private long totalReceivedBytes = 0;
+    private long totalWeiSent = 0;
 
     final ExecutorService exService = Executors.newSingleThreadExecutor();
 
@@ -80,10 +82,9 @@ public class Client extends Observable {
             int redeemPercent = 0;
 
             logger.info("Receiving the file");
-
+            setState(State.RECEIVING_FILE);
             while ((val = in.read(bytes, 0, bytes.length)) > 0 && redeemPercent <= desiredPercent) {
 
-                setState(State.RECEIVING_FILE);
 
                 fos.write(bytes, 0, val);
                 fos.flush();
@@ -99,6 +100,13 @@ public class Client extends Observable {
                 logger.info("percent: " + redeemPercent);
                 out.println(redeemTx);
 
+                totalWeiSent = fileCostInWei().divide(BigInteger.valueOf(100)).multiply(BigInteger.valueOf(redeemPercent)).longValue();
+
+                if (redeemPercent == 100) {
+                    setState(State.SAVING_FILE);
+                } else {
+                    setState(State.RECEIVING_FILE);
+                }
             }
 
             logger.info("Received file: " + outputFile.getCanonicalPath());
@@ -121,5 +129,21 @@ public class Client extends Observable {
 
     public State getState() {
         return state;
+    }
+
+    public long getTotalReceivedBytes() {
+        return totalReceivedBytes;
+    }
+
+    public long getTotalFileBytes() {
+        return Constants.FILE_SIZE;
+    }
+
+    public long getWeiSent() {
+        return totalWeiSent;
+    }
+
+    public BigInteger fileCostInWei() {
+        return Constants.INITIAL_WEI_VALUE;
     }
 }
