@@ -2,6 +2,7 @@ package com.github.browep.efh;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.web3j.utils.Numeric;
 
 import javax.annotation.Nullable;
 import java.io.*;
@@ -26,6 +27,7 @@ public class Client extends Observable {
     final ExecutorService exService = Executors.newSingleThreadExecutor();
     private FileHubAdapter fileHubAdapter;
     private File outputFile;
+    private final long fileSize;
 
     private void setState(State state) {
         this.state = state;
@@ -51,6 +53,9 @@ public class Client extends Observable {
         this.hostName = hostName;
         this.portNumber = portNumber;
         this.desiredPercent = desiredPercent;
+
+        fileSize = Constants.FILE_SIZE;
+
     }
 
     public void start() {
@@ -82,30 +87,25 @@ public class Client extends Observable {
 
             int val = 0;
 
-            int redeemPercent = 0;
+            BigInteger weiSent = BigInteger.ZERO;
 
             logger.info("Receiving the file");
             setState(State.RECEIVING_FILE);
-            while ((val = in.read(bytes, 0, bytes.length)) > 0 && redeemPercent <= desiredPercent) {
-
+            while ((val = in.read(bytes, 0, bytes.length)) > 0 && weiSent.compareTo(fileCostInWei()) <= 0) {
 
                 fos.write(bytes, 0, val);
                 fos.flush();
                 totalReceivedBytes += val;
-                redeemPercent = BigDecimal.valueOf(totalReceivedBytes)
-                        .divide(BigDecimal.valueOf(Constants.FILE_SIZE), 3, RoundingMode.HALF_EVEN)
-                        .multiply(BigDecimal.valueOf(100))
-                        .intValue();
-                logger.info("received: " + totalReceivedBytes + "/" + Constants.FILE_SIZE + " creating transaction. received: " + redeemPercent + "%, desired precent: " + desiredPercent + "%");
+                logger.info("received: " + totalReceivedBytes + "/" + fileSize + " creating transaction.");
 
-                String redeemTx = fileHubAdapter.createRedeemTx(redeemPercent);
-                logger.info("sending: " + redeemTx);
-                logger.info("percent: " + redeemPercent);
-                out.println(redeemTx);
+                long weiToSend = BigDecimal.valueOf(totalReceivedBytes).divide(BigDecimal.valueOf(fileSize)).multiply(new BigDecimal(fileCostInWei())).longValue();
 
-                totalWeiSent = fileCostInWei().divide(BigInteger.valueOf(100)).multiply(BigInteger.valueOf(redeemPercent)).longValue();
+                byte[] signedAmount = fileHubAdapter.signAndSerialize(weiToSend);
+                String hexSignedAmount = Numeric.toHexString(signedAmount);
+                logger.info("sending: " + hexSignedAmount);
+                out.println(hexSignedAmount);
 
-                if (redeemPercent == 100) {
+                if (weiSent.compareTo(fileCostInWei()) >= 0) {
                     setState(State.SAVING_FILE);
                 } else {
                     setState(State.RECEIVING_FILE);

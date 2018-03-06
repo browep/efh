@@ -87,7 +87,7 @@ public class Server {
 				String redeemTx = sendFile(clientOutputStream, bufferedReader);
 				clientSocket.close();
 
-				EthSendTransaction ethSendTransaction = fileHubAdapter.sendRedeemTx(redeemTx);
+				EthSendTransaction ethSendTransaction = null;//fileHubAdapter.sendRedeemTx(redeemTx);
 				logger.info("sent transaction: " + redeemTx);
 				logger.info("sent transaction: " + ethSendTransaction);
 			} else {

@@ -21,28 +21,28 @@ contract filetransfer {
 
     }
 
-    function isRedeemable( bytes32 hash, uint8 v, bytes32 r, bytes32 s) constant returns(bool) {
-        address recoveredAddr = ecrecover(hash, v, r, s);
+    function isRedeemable(bytes32 h, uint8 v, bytes32 r, bytes32 s, uint value) constant returns(bool) {
+
+        // get the address used to sign the hash
+        address recoveredAddr = ecrecover(h, v, r, s);
+
+        // hash the value to see if it matches what the passed in hash is
+        bytes32 proof = sha3(this, value);
+
         return recoveredAddr == client;
     }
 
-    function redeem(uint256 percent) public returns (bool) {
-        if (msg.sender != client) throw;
-        if (percent > 100) throw;
-
-        if (percent == 100 ) {
-            selfdestruct(server);
-            return true;
+    function redeem(bytes32 h, uint8 v, bytes32 r, bytes32 s, uint value) public returns (bool) {
+        if (isRedeemable(h, v, r, s, value)) {
+            if (value >= this.balance) {
+                selfdestruct(server);
+            } else {
+                if(!server.send(value)) throw;
+                selfdestruct(client);
+            }
         } else {
-            uint256 sendAmount = (this.balance / 100) * percent;
-
-            if (!server.send(sendAmount)) throw;
-
-            selfdestruct(client);
-
-            return true;
+            throw;
         }
-
     }
 
     function clawback() public {
