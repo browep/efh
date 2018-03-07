@@ -87,9 +87,7 @@ public class Server {
 				String redeemTx = sendFile(clientOutputStream, bufferedReader, fileHubAdapter);
 				clientSocket.close();
 
-				EthSendTransaction ethSendTransaction = null;//fileHubAdapter.sendRedeemTx(redeemTx);
 				logger.info("sent transaction: " + redeemTx);
-				logger.info("sent transaction: " + ethSendTransaction);
 			} else {
 				clientSocket.close();
 			}
@@ -114,27 +112,29 @@ public class Server {
 		byte[] bytes = new byte[Constants.CHUNK_SIZE];
 
 		int val = 0;
-		boolean txVerified = true;
+		TransferProcessor.VerificationResult txVerified = TransferProcessor.VerificationResult.OK;
         String redeemTransactionData = null;
         long totalSent = 0;
 
 		try {
-			while ((val = inputStream.read(bytes, 0, bytes.length)) > 0 && txVerified) {
+			while ((val = inputStream.read(bytes, 0, bytes.length)) > 0 && txVerified == TransferProcessor.VerificationResult.OK) {
                 clientOutputStream.write(bytes, 0, val);
                 clientOutputStream.flush();
                 redeemTransactionData = bufferedReader.readLine();
-                txVerified = TransferProcessor.verifyTransaction(redeemTransactionData, fileHubAdapter);
-                totalSent += val;
+                txVerified = TransferProcessor.verifyTransaction(redeemTransactionData, fileHubAdapter, totalSent, file.length(), Constants.INITIAL_WEI_VALUE);
+				totalSent += val;
+
+				logger.info("");
                 Thread.sleep(1000);
             }
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 
-		if (txVerified) {
+		if (txVerified == TransferProcessor.VerificationResult.OK) {
             logger.info("Finished sending file. sent: " + totalSent );
         } else {
-		    logger.error("tx not verified: " + redeemTransactionData);
+		    logger.error(txVerified + ": tx not verified: " + redeemTransactionData );
         }
 
         try {

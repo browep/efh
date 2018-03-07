@@ -5,13 +5,21 @@ import com.github.browep.efh.data.HashSigValue;
 import javassist.bytecode.ByteArray;
 import org.ethereum.crypto.ECKey;
 import org.ethereum.util.ByteUtil;
+import org.slf4j.Logger;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.nio.ByteBuffer;
 import java.util.Base64;
 
 public class TransferProcessor {
+
+    public enum VerificationResult {
+        OK, TOO_LITTLE_WEI, NOT_REDEEMABLE
+    }
 
     public static boolean verifyContract(
             FileHubAdapter fileHubAdapter,
@@ -31,19 +39,29 @@ public class TransferProcessor {
         } else if (!expectedServerAddress.equals(contractServerAddress)) {
             System.err.println("wrong server addr.  actual: " + contractServerAddress + ", expected: " + expectedServerAddress);
             return false;
-        } else if (minExpiration.compareTo(fileHubAdapter.getExpirationBlock()) > 0){
+        } else if (minExpiration.compareTo(fileHubAdapter.getExpirationBlock()) > 0) {
             System.err.println("expiration not far enough in the future. min: " + minExpiration + ", contract: " + fileHubAdapter.getExpirationBlock());
             return false;
-        } else{
+        } else {
             return true;
         }
     }
 
-    public static boolean verifyTransaction(String transactionDataStr, FileHubAdapter fileHubAdapter) throws Exception {
+    public static VerificationResult verifyTransaction(
+            String transactionDataStr,
+            FileHubAdapter fileHubAdapter,
+            long totalSent, long fileSize,
+            BigInteger fileCostInWei
+    ) throws Exception {
 
         HashSigValue hashSigValue = deserialize(transactionDataStr);
 
-        return fileHubAdapter.isRedeemable(new FileHubAdapter.HashAndSig(hashSigValue.ecdsaSignature, hashSigValue.hash), hashSigValue.valueInWei);
+        if (hashSigValue.valueInWei.compareTo(getWeiValueOfBytesSent(fileSize, totalSent, fileCostInWei, null)) < 0) {
+            return VerificationResult.TOO_LITTLE_WEI;
+        }
+
+        return fileHubAdapter.isRedeemable(new FileHubAdapter.HashAndSig(hashSigValue.ecdsaSignature, hashSigValue.hash), hashSigValue.valueInWei) ?
+                VerificationResult.OK : VerificationResult.NOT_REDEEMABLE;
 
     }
 
@@ -76,6 +94,22 @@ public class TransferProcessor {
         BigInteger valueInWei = new BigInteger(valueInWeiBytes);
 
         return new HashSigValue(hashBytes, ecdsaSignature, valueInWei);
+    }
+
+    public static BigInteger getWeiValueOfBytesSent(long fileSize, long totalReceivedBytes, BigInteger fileCostInWei, @Nullable Logger logger) {
+        BigInteger weiToSend;
+        BigDecimal fileSizeBigDecimal = BigDecimal.valueOf(fileSize);
+        BigDecimal totalBytesReceivedBigDecimal = BigDecimal.valueOf(totalReceivedBytes);
+        BigDecimal fileCostInWeiBigDecimal = new BigDecimal(fileCostInWei);
+        BigDecimal percentReceived = totalBytesReceivedBigDecimal
+                .divide(fileSizeBigDecimal, 3, RoundingMode.HALF_EVEN);
+        weiToSend = percentReceived
+                .multiply(fileCostInWeiBigDecimal)
+                .toBigInteger();
+        if (logger != null) {
+            logger.info("percent received:" + percentReceived);
+        }
+        return weiToSend;
     }
 
 }

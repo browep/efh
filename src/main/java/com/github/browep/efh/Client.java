@@ -1,16 +1,13 @@
 package com.github.browep.efh;
 
+import com.github.browep.efh.data.TransferProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.web3j.utils.Numeric;
 
 import javax.annotation.Nullable;
 import java.io.*;
-import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.RoundingMode;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.Observable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -100,15 +97,8 @@ public class Client extends Observable {
 
                 BigInteger weiToSend;
                 if (totalReceivedBytes != fileSize) {
-                    BigDecimal fileSizeBigDecimal = BigDecimal.valueOf(fileSize);
-                    BigDecimal totalBytesReceivedBigDecimal = BigDecimal.valueOf(totalReceivedBytes);
-                    BigDecimal fileCostInWeiBigDecimal = new BigDecimal(fileCostInWei());
-                    BigDecimal percentReceived = totalBytesReceivedBigDecimal
-                            .divide(fileSizeBigDecimal, 3, RoundingMode.HALF_EVEN);
-                    logger.info("percent received:"  + percentReceived);
-                    weiToSend = percentReceived
-                            .multiply(fileCostInWeiBigDecimal)
-                            .toBigInteger();
+                    weiToSend = TransferProcessor.getWeiValueOfBytesSent(fileSize, totalReceivedBytes, fileCostInWei(), logger);
+
                 } else {
                     logger.info("received all of the file: " + totalReceivedBytes);
                     weiToSend = fileCostInWei();
