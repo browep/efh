@@ -113,12 +113,6 @@ public class FileHubAdapter {
         return serverAddr;
     }
 
-    public byte[] getProof() throws Exception { return fileTransfer.getProof().send();}
-
-    public BigInteger getValue() throws Exception { return fileTransfer.getValue().send();}
-
-    public String getRecoveredAddr() throws Exception { return fileTransfer.getRecoveredAddr().send(); }
-
     public BigInteger getCurrentBlock() throws IOException {
         return web3j.ethBlockNumber().send().getBlockNumber();
     }

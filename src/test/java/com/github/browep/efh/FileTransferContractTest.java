@@ -70,21 +70,7 @@ public class FileTransferContractTest {
 
         FileHubAdapter.HashAndSig hashAndSig = fileHubAdapter.sign(valueInWei, ECKey.fromPrivate(Numeric.hexStringToByteArray(Constants.CLIENT_PRIV_KEY)));
 
-        logger.info("hash sent  : " + Numeric.toHexString(hashAndSig.hash));
-
         boolean successBool = fileHubAdapter.isRedeemable(hashAndSig, valueInWei);
-
-        logger.info("proof found: " + Numeric.toHexString(fileHubAdapter.getProof()));
-        BigInteger valueFromContract = fileHubAdapter.getValue();
-        logger.info("value from contract: " + valueFromContract);
-
-        byte[] valueFromContractByteArray = valueFromContract.toByteArray();
-        byte[] sentToContractValueByteArray = ByteUtil.copyToArray(valueInWei);
-        logger.info("value sent contract in hex: " + Numeric.toHexString(sentToContractValueByteArray));
-        logger.info("value from contract in hex: " + Numeric.toHexString(valueFromContractByteArray));
-        logger.info("sha3 of value sent: " + Numeric.toHexString(Hash.sha3(sentToContractValueByteArray)));
-        logger.info("recovered address:  " + fileHubAdapter.getRecoveredAddr());
-        logger.info("client address:     " + Constants.CLIENT_ADDR);
 
         Assert.assertTrue(successBool);
     }

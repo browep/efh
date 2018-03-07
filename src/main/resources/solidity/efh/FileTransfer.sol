@@ -8,10 +8,6 @@ contract filetransfer {
     address server;
     uint256 fileHash;
     uint128 expirationBlock;
-    int currentPercent;
-    bytes32 proof;
-    uint value;
-    address recoveredAddr;
 
     function filetransfer(address _client, address _server, uint256 _fileHash, uint128 _expirationBlock)
         public
@@ -26,12 +22,11 @@ contract filetransfer {
 
     function isRedeemable(bytes32 h, uint8 v, bytes32 r, bytes32 s, uint _value) constant returns (bool) {
 
-        bytes memory prefix = "\x19Ethereum Signed Message:\n32";
         // get the address used to sign the hash
-        recoveredAddr = ecrecover(h, v, r, s);
+        address recoveredAddr = ecrecover(h, v, r, s);
 
         // hash the _value to see if it matches what the passed in hash is
-        proof = sha3(_value);
+        bytes32 proof = sha3(_value);
 
         return recoveredAddr == client && proof == h;
     }
@@ -70,17 +65,5 @@ contract filetransfer {
 
     function getExpirationBlock() constant returns (uint256) {
         return expirationBlock;
-    }
-
-    function getProof() constant returns (bytes32) {
-        return proof;
-    }
-
-    function getValue() constant returns (uint) {
-        return value;
-    }
-
-    function getRecoveredAddr() constant returns (address) {
-        return recoveredAddr;
     }
 }
