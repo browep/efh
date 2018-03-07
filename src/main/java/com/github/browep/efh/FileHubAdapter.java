@@ -113,6 +113,12 @@ public class FileHubAdapter {
         return serverAddr;
     }
 
+    public byte[] getProof() throws Exception { return fileTransfer.getProof().send();}
+
+    public BigInteger getValue() throws Exception { return fileTransfer.getValue().send();}
+
+    public String getRecoveredAddr() throws Exception { return fileTransfer.getRecoveredAddr().send(); }
+
     public BigInteger getCurrentBlock() throws IOException {
         return web3j.ethBlockNumber().send().getBlockNumber();
     }
@@ -141,16 +147,14 @@ public class FileHubAdapter {
 
     }
 
-    public HashAndSig sign(long amountInWei, ECKey ecKey) {
-        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
-        buffer.putLong(amountInWei);
-        byte[] bytes = buffer.array();
+    public HashAndSig sign(BigInteger amountInWei, ECKey ecKey) {
+        byte[] bytes = ByteUtil.copyToArray(amountInWei);
         byte[] hash = Hash.sha3(bytes);
         ECKey.ECDSASignature ecdsaSignature = ecKey.sign(hash);
         return new HashAndSig(ecdsaSignature, hash);
     }
 
-    public byte[] signAndSerialize(long amountInWei) {
+    public byte[] signAndSerialize(BigInteger amountInWei) {
         ECKey ecKey = ECKey.fromPrivate(credentials.getEcKeyPair().getPrivateKey().toByteArray());
         HashAndSig hashAndSig = sign(amountInWei, ecKey);
         return ByteUtil.merge(hashAndSig.hash, hashAndSig.ecdsaSignature.toByteArray());
@@ -162,10 +166,11 @@ public class FileHubAdapter {
         BigInteger v = signatureParts.getV();
         byte[] r = signatureParts.getR();
         byte[] s = signatureParts.getS();
-        return fileTransfer.isRedeemable(hashAndSig.hash,
+        fileTransfer.isRedeemable(hashAndSig.hash,
                 v,
                 r, s, valueInWei)
         .send();
+        return true;
     }
 
     public static class HashAndSig {

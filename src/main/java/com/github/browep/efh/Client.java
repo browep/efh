@@ -98,12 +98,19 @@ public class Client extends Observable {
                 totalReceivedBytes += val;
                 logger.info("received: " + totalReceivedBytes + "/" + fileSize + " creating transaction.");
 
-                long weiToSend = BigDecimal.valueOf(totalReceivedBytes).divide(BigDecimal.valueOf(fileSize)).multiply(new BigDecimal(fileCostInWei())).longValue();
+                BigInteger weiToSend;
+                if (totalReceivedBytes != fileSize) {
+                    weiToSend = BigDecimal.valueOf(totalReceivedBytes).divide(BigDecimal.valueOf(fileSize)).multiply(new BigDecimal(fileCostInWei())).toBigInteger();
+                } else {
+                    weiToSend = fileCostInWei();
+                }
 
                 byte[] signedAmount = fileHubAdapter.signAndSerialize(weiToSend);
                 String hexSignedAmount = Numeric.toHexString(signedAmount);
                 logger.info("sending: " + hexSignedAmount);
                 out.println(hexSignedAmount);
+
+                weiSent = weiToSend;
 
                 if (weiSent.compareTo(fileCostInWei()) >= 0) {
                     setState(State.SAVING_FILE);
