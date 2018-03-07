@@ -6,6 +6,7 @@ import javassist.bytecode.ByteArray;
 import org.ethereum.crypto.ECKey;
 import org.ethereum.util.ByteUtil;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -16,6 +17,8 @@ import java.nio.ByteBuffer;
 import java.util.Base64;
 
 public class TransferProcessor {
+
+    private static Logger logger = LoggerFactory.getLogger(TransferProcessor.class);
 
     public enum VerificationResult {
         OK, TOO_LITTLE_WEI, NOT_REDEEMABLE
@@ -56,7 +59,10 @@ public class TransferProcessor {
 
         HashSigValue hashSigValue = deserialize(transactionDataStr);
 
-        if (hashSigValue.valueInWei.compareTo(getWeiValueOfBytesSent(fileSize, totalSent, fileCostInWei, null)) < 0) {
+        BigInteger weiValueOfBytesSent = getWeiValueOfBytesSent(fileSize, totalSent, fileCostInWei, null);
+        if (hashSigValue.valueInWei.compareTo(weiValueOfBytesSent) < 0) {
+            logger.error("sent wei: " + hashSigValue.valueInWei);
+            logger.error("expected: " + weiValueOfBytesSent);
             return VerificationResult.TOO_LITTLE_WEI;
         }
 

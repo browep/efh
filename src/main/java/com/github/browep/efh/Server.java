@@ -1,5 +1,6 @@
 package com.github.browep.efh;
 
+import com.github.browep.efh.data.HashSigValue;
 import com.github.browep.efh.data.TransferProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,92 +50,110 @@ import java.net.Socket;
 import java.net.SocketException;
 
 public class Server {
-	
-	private static Logger logger = LoggerFactory.getLogger(Server.class);
+
+    private static Logger logger = LoggerFactory.getLogger(Server.class);
 
     public static void main(String[] args) {
 
-		if (args.length != 1) {
-			logger.error("Usage: java Server <port number>");
-			System.exit(1);
-		}
+        if (args.length != 1) {
+            logger.error("Usage: java Server <port number>");
+            System.exit(1);
+        }
 
-		int portNumber = Integer.parseInt(args[0]);
+        int portNumber = Integer.parseInt(args[0]);
 
-		logger.info("Server listening: " + portNumber);
+        logger.info("Server listening: " + portNumber);
 
-		try (ServerSocket serverSocket = new ServerSocket(portNumber);
-				Socket clientSocket = serverSocket.accept();
-				OutputStream clientOutputStream = clientSocket.getOutputStream();
-				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));) {
+        try (ServerSocket serverSocket = new ServerSocket(portNumber);
+             Socket clientSocket = serverSocket.accept();
+             OutputStream clientOutputStream = clientSocket.getOutputStream();
+             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));) {
 
-			logger.info("connected with: " + clientSocket.toString());
+            logger.info("connected with: " + clientSocket.toString());
 
-			String contractAddress = bufferedReader.readLine();
+            String contractAddress = bufferedReader.readLine();
 
-			logger.info("Contract address: " + contractAddress);
+            logger.info("Contract address: " + contractAddress);
 
-			FileHubAdapter fileHubAdapter = FileHubAdapter.load(contractAddress, Constants.SERVER_PRIV_KEY);
+            FileHubAdapter fileHubAdapter = FileHubAdapter.load(contractAddress, Constants.SERVER_PRIV_KEY);
 
-			boolean contractVerified = TransferProcessor.verifyContract(fileHubAdapter,
-					Constants.INITIAL_WEI_VALUE,
-					Constants.FILE_HASH_NUM,
-					Constants.SERVER_ADDR,
-					BigInteger.valueOf(120) // 30 minutes
-					);
+            boolean contractVerified = TransferProcessor.verifyContract(fileHubAdapter,
+                    Constants.INITIAL_WEI_VALUE,
+                    Constants.FILE_HASH_NUM,
+                    Constants.SERVER_ADDR,
+                    BigInteger.valueOf(120) // 30 minutes
+            );
 
-			if (contractVerified) {
-				String redeemTx = sendFile(clientOutputStream, bufferedReader, fileHubAdapter);
-				clientSocket.close();
+            if (contractVerified) {
+                String redeemTx = sendFile(clientOutputStream, bufferedReader, fileHubAdapter);
+                clientSocket.close();
 
-				logger.info("sent transaction: " + redeemTx);
-			} else {
-				clientSocket.close();
-			}
+                logger.info("sent transaction: " + redeemTx);
+            } else {
+                clientSocket.close();
+            }
 
 
-		} catch (IOException e) {
-			logger.error(
-					"Exception caught when trying to listen on port " + portNumber + " or listening for a connection");
-			logger.error(e.getMessage());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+        } catch (IOException e) {
+            logger.error(
+                    "Exception caught when trying to listen on port " + portNumber + " or listening for a connection");
+            logger.error(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-	private static String sendFile(OutputStream clientOutputStream, BufferedReader bufferedReader, FileHubAdapter fileHubAdapter) throws IOException {
-		String fileName = "/Users/paulbrower/movie.mp4";
+    private static String sendFile(OutputStream clientOutputStream, BufferedReader bufferedReader, FileHubAdapter fileHubAdapter) throws IOException {
+        String fileName = "/Users/paulbrower/movie.mp4";
 
-		File file = new File(fileName);
-		InputStream inputStream = new FileInputStream(file);
+        File file = new File(fileName);
+        InputStream inputStream = new FileInputStream(file);
 
-		logger.info("Sending file: "+ file.getAbsolutePath());
-		byte[] bytes = new byte[Constants.CHUNK_SIZE];
+        logger.info("Sending file: " + file.getAbsolutePath());
+        byte[] bytes = new byte[Constants.CHUNK_SIZE];
 
-		int val = 0;
-		TransferProcessor.VerificationResult txVerified = TransferProcessor.VerificationResult.OK;
+        int val = 0;
+        TransferProcessor.VerificationResult txVerified = TransferProcessor.VerificationResult.OK;
         String redeemTransactionData = null;
+        HashSigValue lastVerifiedHashSigValue = null;
         long totalSent = 0;
 
-		try {
-			while ((val = inputStream.read(bytes, 0, bytes.length)) > 0 && txVerified == TransferProcessor.VerificationResult.OK) {
+        try {
+            while ((val = inputStream.read(bytes, 0, bytes.length)) > 0 && txVerified == TransferProcessor.VerificationResult.OK) {
                 clientOutputStream.write(bytes, 0, val);
                 clientOutputStream.flush();
                 redeemTransactionData = bufferedReader.readLine();
-                txVerified = TransferProcessor.verifyTransaction(redeemTransactionData, fileHubAdapter, totalSent, file.length(), Constants.INITIAL_WEI_VALUE);
-				totalSent += val;
+                BigInteger suitableWei = Constants.INITIAL_WEI_VALUE;
+                txVerified = TransferProcessor.verifyTransaction(redeemTransactionData, fileHubAdapter, totalSent, file.length(), suitableWei);
+                totalSent += val;
 
-				logger.info("");
+                if (txVerified == TransferProcessor.VerificationResult.OK) {
+                    lastVerifiedHashSigValue = TransferProcessor.deserialize(redeemTransactionData);
+                    logger.info("verified: " + lastVerifiedHashSigValue.valueInWei);
+                }
+
                 Thread.sleep(1000);
             }
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-		}
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
 
-		if (txVerified == TransferProcessor.VerificationResult.OK) {
-            logger.info("Finished sending file. sent: " + totalSent );
+        if (txVerified == TransferProcessor.VerificationResult.OK) {
+            logger.info("Finished sending file. sent: " + totalSent);
         } else {
-		    logger.error(txVerified + ": tx not verified: " + redeemTransactionData );
+            logger.error(txVerified + ": tx not verified: " + redeemTransactionData);
+        }
+
+        if (lastVerifiedHashSigValue != null) {
+            logger.info("redeeming: " + lastVerifiedHashSigValue);
+            HashSigValue hashSigValue = TransferProcessor.deserialize(redeemTransactionData);
+            try {
+                fileHubAdapter.redeem(hashSigValue.hash, hashSigValue.ecdsaSignature, hashSigValue.valueInWei);
+            } catch (Exception e) {
+                logger.error("trouble redeeming: " + redeemTransactionData, e);
+            }
+        } else {
+            logger.error("nothing to redeem");
         }
 
         try {
@@ -148,6 +167,6 @@ public class Server {
 
         return redeemTransactionData;
 
-	}
+    }
 
 }

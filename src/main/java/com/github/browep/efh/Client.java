@@ -105,7 +105,7 @@ public class Client extends Observable {
                 }
 
                 String signedAmount = fileHubAdapter.signAndSerialize(weiToSend);
-                logger.info("singing amount of: " + weiToSend);
+                logger.info("signing amount of: " + weiToSend);
                 logger.info("sending: " + signedAmount);
                 out.println(signedAmount);
 
