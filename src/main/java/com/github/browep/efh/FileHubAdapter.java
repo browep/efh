@@ -166,11 +166,10 @@ public class FileHubAdapter {
         BigInteger v = signatureParts.getV();
         byte[] r = signatureParts.getR();
         byte[] s = signatureParts.getS();
-        fileTransfer.isRedeemable(hashAndSig.hash,
+        return fileTransfer.isRedeemable(hashAndSig.hash,
                 v,
                 r, s, valueInWei)
         .send();
-        return true;
     }
 
     public static class HashAndSig {

@@ -24,7 +24,7 @@ contract filetransfer {
 
     }
 
-    function isRedeemable(bytes32 h, uint8 v, bytes32 r, bytes32 s, uint _value) returns (bool) {
+    function isRedeemable(bytes32 h, uint8 v, bytes32 r, bytes32 s, uint _value) constant returns (bool) {
 
         bytes memory prefix = "\x19Ethereum Signed Message:\n32";
         // get the address used to sign the hash
@@ -32,7 +32,6 @@ contract filetransfer {
 
         // hash the _value to see if it matches what the passed in hash is
         proof = sha3(_value);
-        value = _value;
 
         return recoveredAddr == client && proof == h;
     }
