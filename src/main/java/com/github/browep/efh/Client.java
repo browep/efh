@@ -19,7 +19,7 @@ public class Client extends Observable {
     private int portNumber;
     private int desiredPercent;
     private long totalReceivedBytes = 0;
-    private long totalWeiSent = 0;
+    private BigInteger totalWeiSent = BigInteger.ZERO;
 
     final ExecutorService exService = Executors.newSingleThreadExecutor();
     private FileHubAdapter fileHubAdapter;
@@ -84,11 +84,9 @@ public class Client extends Observable {
 
             int val = 0;
 
-            BigInteger weiSent = BigInteger.ZERO;
-
             logger.info("Receiving the file");
             setState(State.RECEIVING_FILE);
-            while ((val = in.read(bytes, 0, bytes.length)) > 0 && weiSent.compareTo(fileCostInWei()) <= 0) {
+            while ((val = in.read(bytes, 0, bytes.length)) > 0 && totalWeiSent.compareTo(fileCostInWei()) <= 0) {
 
                 fos.write(bytes, 0, val);
                 fos.flush();
@@ -109,9 +107,9 @@ public class Client extends Observable {
                 logger.info("sending: " + signedAmount);
                 out.println(signedAmount);
 
-                weiSent = weiToSend;
+                totalWeiSent = weiToSend;
 
-                if (weiSent.compareTo(fileCostInWei()) >= 0) {
+                if (totalWeiSent.compareTo(fileCostInWei()) >= 0) {
                     setState(State.SAVING_FILE);
                 } else {
                     setState(State.RECEIVING_FILE);
@@ -143,7 +141,7 @@ public class Client extends Observable {
         return Constants.FILE_SIZE;
     }
 
-    public long getWeiSent() {
+    public BigInteger getWeiSent() {
         return totalWeiSent;
     }
 

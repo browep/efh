@@ -64,7 +64,7 @@ public class GuiController implements Observer {
         logger.debug("status updated: " + state);
         statusLabel.setText("Status: "+ state.displayName);
         downloadProgress.setProgress(BigDecimal.valueOf(client.getTotalReceivedBytes()).divide(BigDecimal.valueOf(client.getTotalFileBytes()), 3, RoundingMode.HALF_EVEN).doubleValue());
-        etherProgress.setProgress(BigDecimal.valueOf(client.getWeiSent()).divide(BigDecimal.valueOf(client.fileCostInWei().longValue()), 3, RoundingMode.HALF_EVEN).doubleValue());
+        etherProgress.setProgress(new BigDecimal(client.getWeiSent()).divide(BigDecimal.valueOf(client.fileCostInWei().longValue()), 3, RoundingMode.HALF_EVEN).doubleValue());
 
         if (client.getContractAddress() != null) {
             contractTextField.setText(client.getContractAddress());
