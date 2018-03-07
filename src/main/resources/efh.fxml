@@ -19,15 +19,15 @@
         </padding>
         <HBox alignment="CENTER_LEFT" spacing="5">
             <Label text="Contract Address:"/>
-            <TextField id="contract_address_field"/>
+            <TextField id="contract_address_field" prefWidth="350"/>
         </HBox>
         <HBox alignment="CENTER_LEFT" spacing="5">
             <Label text="File Download Location:"/>
-            <TextField id="file_location_field"/>
+            <TextField id="file_location_field" prefWidth="350"/>
         </HBox>
         <Label>File Download</Label>
         <ProgressBar fx:id="download_progress"  prefWidth="${download_progress.parent.width}" progress="0.0" />
-        <Label>Ether Sent</Label>
+        <Label>Ether Left</Label>
         <ProgressBar fx:id="ether_sent_progress"  prefWidth="${ether_sent_progress.parent.width}" progress="1.0" />
 
     </VBox>

@@ -2,6 +2,7 @@ package com.github.browep.efh.ui;
 
 import com.github.browep.efh.Client;
 import javafx.application.Platform;
+import javafx.geometry.NodeOrientation;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -38,6 +39,7 @@ public class GuiController implements Observer {
         statusLabel = (Label) scene.lookup("#status");
         downloadProgress = (ProgressBar) scene.lookup("#download_progress");
         etherProgress = (ProgressBar) scene.lookup("#ether_sent_progress");
+        etherProgress.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
 
         this.client = client;
         client.addObserver(this);
@@ -64,7 +66,7 @@ public class GuiController implements Observer {
         logger.debug("status updated: " + state);
         statusLabel.setText("Status: "+ state.displayName);
         downloadProgress.setProgress(BigDecimal.valueOf(client.getTotalReceivedBytes()).divide(BigDecimal.valueOf(client.getTotalFileBytes()), 3, RoundingMode.HALF_EVEN).doubleValue());
-        etherProgress.setProgress(new BigDecimal(client.getWeiSent()).divide(BigDecimal.valueOf(client.fileCostInWei().longValue()), 3, RoundingMode.HALF_EVEN).doubleValue());
+        etherProgress.setProgress(1 - new BigDecimal(client.getWeiSent()).divide(BigDecimal.valueOf(client.fileCostInWei().longValue()), 3, RoundingMode.HALF_EVEN).doubleValue());
 
         if (client.getContractAddress() != null) {
             contractTextField.setText(client.getContractAddress());

@@ -48,19 +48,22 @@ import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.BufferUnderflowException;
 
 public class Server {
 
     private static Logger logger = LoggerFactory.getLogger(Server.class);
+    private static long sleepMillis;
 
     public static void main(String[] args) {
 
-        if (args.length != 1) {
-            logger.error("Usage: java Server <port number>");
+        if (args.length != 2) {
+            logger.error("Usage: java Server <port number> <sleep millis>");
             System.exit(1);
         }
 
         int portNumber = Integer.parseInt(args[0]);
+        sleepMillis = Long.parseLong(args[1]);
 
         logger.info("Server listening: " + portNumber);
 
@@ -127,15 +130,23 @@ public class Server {
                     redeemTransactionData = bufferedReader.readLine();
                 }
                 BigInteger suitableWei = Constants.INITIAL_WEI_VALUE;
-                txVerified = TransferProcessor.verifyTransaction(redeemTransactionData, fileHubAdapter, totalSent, file.length(), suitableWei);
+                try {
+                    txVerified = TransferProcessor.verifyTransaction(redeemTransactionData, fileHubAdapter, totalSent, file.length(), suitableWei);
+                } catch (BufferUnderflowException e) {
+                    logger.error(e.getMessage() + "  " + redeemTransactionData);
+                }
                 totalSent += val;
 
                 if (txVerified == TransferProcessor.VerificationResult.OK) {
-                    lastVerifiedHashSigValue = TransferProcessor.deserialize(redeemTransactionData);
-                    logger.info("verified: " + lastVerifiedHashSigValue.valueInWei);
+                    try {
+                        lastVerifiedHashSigValue = TransferProcessor.deserialize(redeemTransactionData);
+                        logger.info("verified: " + lastVerifiedHashSigValue.valueInWei);
+                    } catch (BufferUnderflowException e) {
+                        logger.error(e.getMessage() + "  " + redeemTransactionData);
+                    }
                 }
 
-                Thread.sleep(1000);
+                Thread.sleep(sleepMillis);
             }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
