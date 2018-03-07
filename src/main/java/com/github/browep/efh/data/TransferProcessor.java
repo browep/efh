@@ -71,6 +71,11 @@ public class TransferProcessor {
 
     }
 
+    public static boolean isRedeemable(FileHubAdapter fileHubAdapter, String transactionDataStr) throws Exception {
+        HashSigValue hashSigValue = deserialize(transactionDataStr);
+        return fileHubAdapter.isRedeemable(new FileHubAdapter.HashAndSig(hashSigValue.ecdsaSignature, hashSigValue.hash), hashSigValue.valueInWei);
+    }
+
     public static String serialize(FileHubAdapter.HashAndSig hashAndSig, BigInteger valueInWei) {
         byte[] sigBytes = hashAndSig.ecdsaSignature.toByteArray();
         byte[] bytes = ByteUtil.merge(

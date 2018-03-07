@@ -123,6 +123,9 @@ public class Server {
                 clientOutputStream.write(bytes, 0, val);
                 clientOutputStream.flush();
                 redeemTransactionData = bufferedReader.readLine();
+                while (bufferedReader.ready()) {
+                    redeemTransactionData = bufferedReader.readLine();
+                }
                 BigInteger suitableWei = Constants.INITIAL_WEI_VALUE;
                 txVerified = TransferProcessor.verifyTransaction(redeemTransactionData, fileHubAdapter, totalSent, file.length(), suitableWei);
                 totalSent += val;
@@ -138,6 +141,26 @@ public class Server {
             logger.error(e.getMessage(), e);
         }
 
+        // wait a little bit before closing the connection
+        logger.info("wait for late transactions");
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            logger.error(e.getMessage(), e);
+        }
+
+        // check for one more tx
+        while (bufferedReader.ready()) {
+            String lastRedeemTransactionData = bufferedReader.readLine();
+            try {
+                if (TransferProcessor.isRedeemable(fileHubAdapter, redeemTransactionData)) {
+                    redeemTransactionData = lastRedeemTransactionData;
+                }
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+
         if (txVerified == TransferProcessor.VerificationResult.OK) {
             logger.info("Finished sending file. sent: " + totalSent);
         } else {
@@ -149,6 +172,7 @@ public class Server {
             HashSigValue hashSigValue = TransferProcessor.deserialize(redeemTransactionData);
             try {
                 fileHubAdapter.redeem(hashSigValue.hash, hashSigValue.ecdsaSignature, hashSigValue.valueInWei);
+                logger.info("redeemed: "+ hashSigValue.valueInWei);
             } catch (Exception e) {
                 logger.error("trouble redeeming: " + redeemTransactionData, e);
             }
@@ -156,11 +180,6 @@ public class Server {
             logger.error("nothing to redeem");
         }
 
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            logger.error(e.getMessage(), e);
-        }
 
         clientOutputStream.close();
         bufferedReader.close();
