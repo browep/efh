@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.Observable;
 import java.util.Observer;
@@ -28,6 +29,8 @@ public class GuiController implements Observer {
     private final ProgressBar etherProgress;
     private final TextField contractTextField;
     private final TextField filePathField;
+    private final Label downloadLabel;
+    private final Label etherLabel;
 
     public GuiController(Scene scene, Client client) {
         this.scene = scene;
@@ -40,6 +43,8 @@ public class GuiController implements Observer {
         downloadProgress = (ProgressBar) scene.lookup("#download_progress");
         etherProgress = (ProgressBar) scene.lookup("#ether_sent_progress");
         etherProgress.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
+        downloadLabel = (Label) scene.lookup("#download_count");
+        etherLabel = (Label) scene.lookup("#ether_count");
 
         this.client = client;
         client.addObserver(this);
@@ -64,9 +69,16 @@ public class GuiController implements Observer {
     private void updateState() {
         Client.State state = client.getState();
         logger.debug("status updated: " + state);
-        statusLabel.setText("Status: "+ state.displayName);
-        downloadProgress.setProgress(BigDecimal.valueOf(client.getTotalReceivedBytes()).divide(BigDecimal.valueOf(client.getTotalFileBytes()), 3, RoundingMode.HALF_EVEN).doubleValue());
-        etherProgress.setProgress(1 - new BigDecimal(client.getWeiSent()).divide(BigDecimal.valueOf(client.fileCostInWei().longValue()), 3, RoundingMode.HALF_EVEN).doubleValue());
+        statusLabel.setText("Status: " + state.displayName);
+        long totalReceivedBytes = client.getTotalReceivedBytes();
+        long totalFileBytes = client.getTotalFileBytes();
+        downloadProgress.setProgress(BigDecimal.valueOf(totalReceivedBytes).divide(BigDecimal.valueOf(totalFileBytes), 3, RoundingMode.HALF_EVEN).doubleValue());
+        downloadLabel.setText(totalReceivedBytes + " / " + totalFileBytes);
+
+        BigInteger weiSent = client.getWeiSent();
+        BigInteger fileCostInWei = client.fileCostInWei();
+        etherLabel.setText(fileCostInWei.subtract(weiSent) + " / " + fileCostInWei);
+        etherProgress.setProgress(1 - new BigDecimal(weiSent).divide(BigDecimal.valueOf(fileCostInWei.longValue()), 3, RoundingMode.HALF_EVEN).doubleValue());
 
         if (client.getContractAddress() != null) {
             contractTextField.setText(client.getContractAddress());
