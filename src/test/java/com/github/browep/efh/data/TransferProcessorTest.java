@@ -38,4 +38,14 @@ public class TransferProcessorTest {
         Assert.assertEquals(valueInWei, hashSigValue.valueInWei);
 
     }
+
+    @Test
+    public void deserialize_1() {
+        String sentTx = "MMe0UGsh31YvJlgTNuE2XOC6xd3dP0je2Bn7hu/Gj6qgaWr/yIAO7U/lGwFPXJ2wBGJTvC98POcmgcilq8RS+XcM4LlAL9Ifu7W2ZFw9EcptIP/jJEKNTI4k5kBUPglsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADjX6kxoAA";
+
+        HashSigValue hashSigValue = TransferProcessor.deserialize(sentTx);
+
+        Assert.assertEquals(BigInteger.valueOf(1000000000000000L), hashSigValue.valueInWei);
+        Assert.assertTrue(hashSigValue.ecdsaSignature.validateComponents());
+    }
 }

@@ -67,7 +67,9 @@ public class TransferProcessor {
         byteBuffer.get(r, 0, 32);
         byte[] s = new byte[32];
         byteBuffer.get(s, 0, 32);
-        ECKey.ECDSASignature ecdsaSignature = ECKey.ECDSASignature.fromComponents(r, s, byteBuffer.get());
+        byte v = byteBuffer.get();
+        if (v < 27) v += 27;
+        ECKey.ECDSASignature ecdsaSignature = ECKey.ECDSASignature.fromComponents(r, s, v);
 
         byte[] valueInWeiBytes = new byte[32];
         byteBuffer.get(valueInWeiBytes, 0, 32);
