@@ -84,7 +84,7 @@ public class Server {
 					);
 
 			if (contractVerified) {
-				String redeemTx = sendFile(clientOutputStream, bufferedReader);
+				String redeemTx = sendFile(clientOutputStream, bufferedReader, fileHubAdapter);
 				clientSocket.close();
 
 				EthSendTransaction ethSendTransaction = null;//fileHubAdapter.sendRedeemTx(redeemTx);
@@ -104,7 +104,7 @@ public class Server {
 		}
 	}
 
-	private static String sendFile(OutputStream clientOutputStream, BufferedReader bufferedReader) throws IOException {
+	private static String sendFile(OutputStream clientOutputStream, BufferedReader bufferedReader, FileHubAdapter fileHubAdapter) throws IOException {
 		String fileName = "/Users/paulbrower/movie.mp4";
 
 		File file = new File(fileName);
@@ -123,13 +123,11 @@ public class Server {
                 clientOutputStream.write(bytes, 0, val);
                 clientOutputStream.flush();
                 redeemTransactionData = bufferedReader.readLine();
-                txVerified = TransferProcessor.verifyTransaction(redeemTransactionData);
+                txVerified = TransferProcessor.verifyTransaction(redeemTransactionData, fileHubAdapter);
                 totalSent += val;
                 Thread.sleep(1000);
             }
-		} catch (SocketException e) {
-			logger.error("client bailed.");
-		} catch (IOException | InterruptedException e) {
+		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 

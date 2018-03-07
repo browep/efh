@@ -39,9 +39,12 @@ public class TransferProcessor {
         }
     }
 
-    public static boolean verifyTransaction(String transactionDataStr) {
+    public static boolean verifyTransaction(String transactionDataStr, FileHubAdapter fileHubAdapter) throws Exception {
 
-        return true;
+        HashSigValue hashSigValue = deserialize(transactionDataStr);
+
+        return fileHubAdapter.isRedeemable(new FileHubAdapter.HashAndSig(hashSigValue.ecdsaSignature, hashSigValue.hash), hashSigValue.valueInWei);
+
     }
 
     public static String serialize(FileHubAdapter.HashAndSig hashAndSig, BigInteger valueInWei) {

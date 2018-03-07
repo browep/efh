@@ -100,8 +100,17 @@ public class Client extends Observable {
 
                 BigInteger weiToSend;
                 if (totalReceivedBytes != fileSize) {
-                    weiToSend = BigDecimal.valueOf(totalReceivedBytes).divide(BigDecimal.valueOf(fileSize)).multiply(new BigDecimal(fileCostInWei())).toBigInteger();
+                    BigDecimal fileSizeBigDecimal = BigDecimal.valueOf(fileSize);
+                    BigDecimal totalBytesReceivedBigDecimal = BigDecimal.valueOf(totalReceivedBytes);
+                    BigDecimal fileCostInWeiBigDecimal = new BigDecimal(fileCostInWei());
+                    BigDecimal percentReceived = totalBytesReceivedBigDecimal
+                            .divide(fileSizeBigDecimal, 3, RoundingMode.HALF_EVEN);
+                    logger.info("percent received:"  + percentReceived);
+                    weiToSend = percentReceived
+                            .multiply(fileCostInWeiBigDecimal)
+                            .toBigInteger();
                 } else {
+                    logger.info("received all of the file: " + totalReceivedBytes);
                     weiToSend = fileCostInWei();
                 }
 
@@ -127,11 +136,6 @@ public class Client extends Observable {
 
             setState(State.DONE);
 
-        } catch (UnknownHostException e) {
-            logger.error("Don't know about host " + hostName, e);
-        } catch (IOException e) {
-            logger.error("Couldn't get I/O for the connection to " +
-                    hostName, e);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
