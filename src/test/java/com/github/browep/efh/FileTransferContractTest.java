@@ -1,14 +1,19 @@
 package com.github.browep.efh;
 
+import org.apache.commons.logging.LogFactory;
 import org.ethereum.crypto.ECKey;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.web3j.utils.Numeric;
 
 import java.io.IOException;
 import java.math.BigInteger;
 
 public class FileTransferContractTest {
+
+    Logger logger = LoggerFactory.getLogger(FileTransferContractTest.class);
 
     @Test
     public void canConnect() throws IOException {
@@ -60,7 +65,11 @@ public class FileTransferContractTest {
 
         FileHubAdapter fileHubAdapter = new FileHubAdapter(Constants.CLIENT_PRIV_KEY);
         fileHubAdapter.deploy(Constants.CLIENT_ADDR, Constants.SERVER_ADDR, Constants.FILE_HASH_STR, Constants.INITIAL_WEI_VALUE);
+
         FileHubAdapter.HashAndSig hashAndSig = fileHubAdapter.sign(amountInWei, ECKey.fromPrivate(Numeric.hexStringToByteArray(Constants.CLIENT_PRIV_KEY)));
+
+        logger.info("hash: " + Numeric.toHexString(hashAndSig.hash));
+        logger.info("client address: " + fileHubAdapter.getClientAddr());
         boolean successBool = fileHubAdapter.isRedeemable(hashAndSig, BigInteger.valueOf(amountInWei));
 
         Assert.assertTrue(successBool);
