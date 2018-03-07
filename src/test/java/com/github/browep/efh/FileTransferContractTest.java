@@ -34,32 +34,31 @@ public class FileTransferContractTest {
         Assert.assertEquals(Constants.INITIAL_WEI_VALUE, fileHubAdapter.getContractBalance());
     }
 
-//    @Test
-//    public void canSendRedeem() throws Exception {
-//        FileHubAdapter fileHubAdapter = new FileHubAdapter(Constants.CLIENT_PRIV_KEY);
-//        fileHubAdapter.deploy(Constants.CLIENT_ADDR, Constants.SERVER_ADDR, Constants.FILE_HASH_STR, Constants.INITIAL_WEI_VALUE);
-//        String txHash = fileHubAdapter.redeem(10);
-//        Assert.assertNotNull(txHash);
-//
-//    }
-//
-//    @Test
-//    public void redeemSendsFunds() throws Exception {
-//        FileHubAdapter fileHubAdapter = new FileHubAdapter(Constants.CLIENT_PRIV_KEY);
-//        fileHubAdapter.deploy(Constants.CLIENT_ADDR, Constants.SERVER_ADDR, Constants.FILE_HASH_STR, Constants.INITIAL_WEI_VALUE);
-//
-//        BigInteger serverBalanceBefore = fileHubAdapter.getServerBalance();
-//
-//        fileHubAdapter.redeem(10);
-//
-//        BigInteger contractEndBalance = fileHubAdapter.getContractBalance();
-//        Assert.assertEquals(BigInteger.ZERO, contractEndBalance);
-//
-//        BigInteger serverBalanceAfter = fileHubAdapter.getServerBalance();
-//        Assert.assertTrue("\nbefore: " + serverBalanceBefore +
-//                                 "\nafter:  " + serverBalanceAfter,
-//                serverBalanceAfter.compareTo(serverBalanceBefore) > 0);
-//    }
+    @Test
+    public void redeemSendsFunds() throws Exception {
+        BigInteger valueInWei = Constants.INITIAL_WEI_VALUE;
+
+        FileHubAdapter fileHubAdapter = new FileHubAdapter(Constants.CLIENT_PRIV_KEY);
+        fileHubAdapter.deploy(Constants.CLIENT_ADDR, Constants.SERVER_ADDR, Constants.FILE_HASH_STR, Constants.INITIAL_WEI_VALUE);
+
+        BigInteger serverBalanceBefore = fileHubAdapter.getServerBalance();
+
+        FileHubAdapter.HashAndSig hashAndSig = fileHubAdapter.sign(valueInWei, ECKey.fromPrivate(Numeric.hexStringToByteArray(Constants.CLIENT_PRIV_KEY)));
+
+        fileHubAdapter.redeem(hashAndSig.hash, hashAndSig.ecdsaSignature, valueInWei);
+
+        BigInteger contractEndBalance = fileHubAdapter.getContractBalance();
+        Assert.assertEquals(BigInteger.ZERO, contractEndBalance);
+
+        BigInteger serverBalanceAfter = fileHubAdapter.getServerBalance();
+
+        String message = "\nbefore: " + serverBalanceBefore +
+                "\nafter:  " + serverBalanceAfter;
+        logger.info(message);
+
+        Assert.assertTrue(message,
+                serverBalanceAfter.compareTo(serverBalanceBefore) > 0);
+    }
 
     @Test
     public void testIsRedeemable() throws Exception {

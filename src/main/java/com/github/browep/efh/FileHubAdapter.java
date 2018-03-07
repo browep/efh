@@ -122,18 +122,18 @@ public class FileHubAdapter {
     }
 
     /**
-     * @param percent percent of the transaction to redeem ( 1-100 )
+     * @param redeemValue value to redeem, in wei
      * @return hash of the transaction
      * @throws Exception
      */
-    public String redeem(byte[] hash, ECKey.ECDSASignature ecdsaSignature, int percent) throws Exception {
+    public String redeem(byte[] hash, ECKey.ECDSASignature ecdsaSignature, BigInteger redeemValue) throws Exception {
         SignatureParts signatureParts = new SignatureParts(ecdsaSignature).invoke();
         TransactionReceipt transactionReceipt = fileTransfer.redeem(
                 hash,
                 signatureParts.v,
                 signatureParts.r,
                 signatureParts.s,
-                BigInteger.valueOf(percent)
+                redeemValue
         ).send();
         String txHash = transactionReceipt.getTransactionHash();
         log.info("redeemHash: " + txHash);
