@@ -2,31 +2,20 @@ package com.github.browep.efh;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Collections;
 
-import org.ethereum.core.Transaction;
+import com.github.browep.efh.data.TransferProcessor;
 import org.ethereum.crypto.ECKey;
 import org.ethereum.util.ByteUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
-import org.web3j.abi.FunctionEncoder;
-import org.web3j.abi.TypeReference;
-import org.web3j.abi.datatypes.Function;
-import org.web3j.abi.datatypes.Type;
 import org.web3j.crypto.*;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
-import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.sample.contracts.generated.FileTransfer;
 import org.web3j.tx.Contract;
 import org.web3j.tx.ManagedTransaction;
-
-import org.web3j.utils.Numeric;
 
 import static org.ethereum.util.ByteUtil.bigIntegerToBytes;
 
@@ -141,17 +130,17 @@ public class FileHubAdapter {
 
     }
 
-    public HashAndSig sign(BigInteger amountInWei, ECKey ecKey) {
-        byte[] bytes = ByteUtil.copyToArray(amountInWei);
+    public HashAndSig sign(BigInteger valueInWei, ECKey ecKey) {
+        byte[] bytes = ByteUtil.copyToArray(valueInWei);
         byte[] hash = Hash.sha3(bytes);
         ECKey.ECDSASignature ecdsaSignature = ecKey.sign(hash);
         return new HashAndSig(ecdsaSignature, hash);
     }
 
-    public byte[] signAndSerialize(BigInteger amountInWei) {
+    public String signAndSerialize(BigInteger amountInWei) {
         ECKey ecKey = ECKey.fromPrivate(credentials.getEcKeyPair().getPrivateKey().toByteArray());
         HashAndSig hashAndSig = sign(amountInWei, ecKey);
-        return ByteUtil.merge(hashAndSig.hash, hashAndSig.ecdsaSignature.toByteArray());
+        return TransferProcessor.serialize(hashAndSig, amountInWei);
     }
 
     public boolean isRedeemable(HashAndSig hashAndSig, BigInteger valueInWei) throws Exception {

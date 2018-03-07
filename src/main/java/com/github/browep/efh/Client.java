@@ -105,10 +105,10 @@ public class Client extends Observable {
                     weiToSend = fileCostInWei();
                 }
 
-                byte[] signedAmount = fileHubAdapter.signAndSerialize(weiToSend);
-                String hexSignedAmount = Numeric.toHexString(signedAmount);
-                logger.info("sending: " + hexSignedAmount);
-                out.println(hexSignedAmount);
+                String signedAmount = fileHubAdapter.signAndSerialize(weiToSend);
+                logger.info("singing amount of: " + weiToSend);
+                logger.info("sending: " + signedAmount);
+                out.println(signedAmount);
 
                 weiSent = weiToSend;
 

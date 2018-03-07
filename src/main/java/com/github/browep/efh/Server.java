@@ -1,5 +1,6 @@
 package com.github.browep.efh;
 
+import com.github.browep.efh.data.TransferProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
@@ -7,7 +8,6 @@ import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -76,7 +76,7 @@ public class Server {
 
 			FileHubAdapter fileHubAdapter = FileHubAdapter.load(contractAddress, Constants.SERVER_PRIV_KEY);
 
-			boolean contractVerified = Verifier.verifyContract(fileHubAdapter,
+			boolean contractVerified = TransferProcessor.verifyContract(fileHubAdapter,
 					Constants.INITIAL_WEI_VALUE,
 					Constants.FILE_HASH_NUM,
 					Constants.SERVER_ADDR,
@@ -123,7 +123,7 @@ public class Server {
                 clientOutputStream.write(bytes, 0, val);
                 clientOutputStream.flush();
                 redeemTransactionData = bufferedReader.readLine();
-                txVerified = Verifier.verifyTransaction(redeemTransactionData);
+                txVerified = TransferProcessor.verifyTransaction(redeemTransactionData);
                 totalSent += val;
                 Thread.sleep(1000);
             }
