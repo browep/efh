@@ -62,7 +62,7 @@ public class TransferProcessorTest {
 
         TransferProcessor.VerificationResult verificationResult =
                 TransferProcessor.verifyTransaction(sentTx,
-                        fileHubAdapter, 100, 100,
+                        FileHubAdapter.load(fileHubAdapter.getContractAddress(), Constants.SERVER_PRIV_KEY), 100, 100,
                         fileCost);
 
         Assert.assertEquals(TransferProcessor.VerificationResult.OK, verificationResult);

@@ -45,7 +45,7 @@ public class FileTransferContractTest {
 
         FileHubAdapter.HashAndSig hashAndSig = fileHubAdapter.sign(valueInWei, ECKey.fromPrivate(Numeric.hexStringToByteArray(Constants.CLIENT_PRIV_KEY)));
 
-        fileHubAdapter.redeem(hashAndSig.hash, hashAndSig.ecdsaSignature, valueInWei);
+        FileHubAdapter.load(fileHubAdapter.getContractAddress(), Constants.SERVER_PRIV_KEY).redeem(hashAndSig.hash, hashAndSig.ecdsaSignature, valueInWei);
 
         BigInteger contractEndBalance = fileHubAdapter.getContractBalance();
         Assert.assertEquals(BigInteger.ZERO, contractEndBalance);
@@ -64,12 +64,13 @@ public class FileTransferContractTest {
     public void testIsRedeemable() throws Exception {
         BigInteger valueInWei = BigInteger.valueOf(100);
 
-        FileHubAdapter fileHubAdapter = new FileHubAdapter(Constants.CLIENT_PRIV_KEY);
-        fileHubAdapter.deploy(Constants.CLIENT_ADDR, Constants.SERVER_ADDR, Constants.FILE_HASH_STR, Constants.INITIAL_WEI_VALUE);
+        FileHubAdapter clientFileHubAdapter = new FileHubAdapter(Constants.CLIENT_PRIV_KEY);
+        clientFileHubAdapter.deploy(Constants.CLIENT_ADDR, Constants.SERVER_ADDR, Constants.FILE_HASH_STR, Constants.INITIAL_WEI_VALUE);
 
-        FileHubAdapter.HashAndSig hashAndSig = fileHubAdapter.sign(valueInWei, ECKey.fromPrivate(Numeric.hexStringToByteArray(Constants.CLIENT_PRIV_KEY)));
+        FileHubAdapter.HashAndSig hashAndSig = clientFileHubAdapter.sign(valueInWei, ECKey.fromPrivate(Numeric.hexStringToByteArray(Constants.CLIENT_PRIV_KEY)));
 
-        boolean successBool = fileHubAdapter.isRedeemable(hashAndSig, valueInWei);
+        FileHubAdapter serverFileHubAdapter = FileHubAdapter.load(clientFileHubAdapter.getContractAddress(), Constants.SERVER_PRIV_KEY);
+        boolean successBool = serverFileHubAdapter.isRedeemable(hashAndSig, valueInWei);
 
         Assert.assertTrue(successBool);
     }
