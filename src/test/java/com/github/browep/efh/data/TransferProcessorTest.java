@@ -69,6 +69,23 @@ public class TransferProcessorTest {
     }
 
     @Test
+    public void verificationResult_not_redeemable_server() throws Exception {
+
+        FileHubAdapter fileHubAdapter = new FileHubAdapter(Constants.CLIENT_PRIV_KEY);
+        fileHubAdapter.deploy(Constants.CLIENT_ADDR, Constants.SERVER_ADDR, Constants.FILE_HASH_STR, Constants.INITIAL_WEI_VALUE);
+        String sentTx = "MMe0UGsh31YvJlgTNuE2XOC6xd3dP0je2Bn7hu/Gj6qgaWr/yIAO7U/lGwFPXJ2wBGJTvC98POcmgcilq8RS+XcM4LlAL9Ifu7W2ZFw9EcptIP/jJEKNTI4k5kBUPglsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADjX6kxoAA";
+
+        BigInteger fileCost = BigInteger.valueOf(1000000000000000L);
+
+        TransferProcessor.VerificationResult verificationResult =
+                TransferProcessor.verifyTransaction(sentTx,
+                        fileHubAdapter, 100, 100,
+                        fileCost);
+
+        Assert.assertEquals(TransferProcessor.VerificationResult.NOT_REDEEMABLE, verificationResult);
+    }
+
+    @Test
     public void verificationResult_not_redeemable() throws Exception {
 
         FileHubAdapter fileHubAdapter = new FileHubAdapter(Constants.CLIENT_PRIV_KEY);
