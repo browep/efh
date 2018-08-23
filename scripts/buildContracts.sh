@@ -6,7 +6,6 @@ set -o pipefail
 baseDir="../src/main/resources/solidity"
 
 targets="
-greeter/Greeter
 efh/FileTransfer
 "
 
