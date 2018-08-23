@@ -1,4 +1,4 @@
-group 'org.web3j'
+group 'com.github.browep.eg'
 version '0.0.1'
 
 apply plugin: 'java'
