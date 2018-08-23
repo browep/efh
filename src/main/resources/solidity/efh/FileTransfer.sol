@@ -28,7 +28,7 @@ contract filetransfer {
         // hash the _value to see if it matches what the passed in hash is
         bytes32 proof = sha3(_value);
 
-        return recoveredAddr == client && proof == h;
+        return recoveredAddr == client && proof == h && msg.sender == server;
     }
 
     function redeem(bytes32 h, uint8 v, bytes32 r, bytes32 s, uint value) public returns (bool) {
