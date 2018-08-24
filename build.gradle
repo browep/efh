@@ -47,7 +47,7 @@ task clientJar(type: Jar) {
     with jar
 }
 
-//create a single for client impl
+//create a single for server impl
 task serverJar(type: Jar) {
     manifest {
         attributes 'Implementation-Title': 'EFH Server',
@@ -59,3 +59,5 @@ task serverJar(type: Jar) {
     exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
     with jar
 }
+
+build.dependsOn(serverJar, clientJar)
