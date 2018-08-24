@@ -11,17 +11,16 @@ public class ClientMain {
 
     public static void main(String[] args) {
 
-        if (args.length != 3) {
+        if (args.length != 2) {
             logger.error(
-                    "Usage: java Client <host name> <port number> <percent>");
+                    "Usage: java Client <host name> <port number>");
             System.exit(1);
         }
 
         String hostName = args[0];
         int portNumber = Integer.parseInt(args[1]);
-        int desiredPercent = Integer.parseInt(args[2]);
 
-        Client client = new Client(hostName, portNumber, desiredPercent);
+        Client client = new Client(hostName, portNumber, 100);
 
         Gui.construct(client);
 
