@@ -14,6 +14,7 @@ import java.util.concurrent.Executors;
 
 public class Client extends Observable {
 
+    public static final File OUTPUT_DIR = new File("/tmp/client_dl");
     private static Logger logger = LoggerFactory.getLogger(Client.class);
     private String hostName;
     private int portNumber;
@@ -24,7 +25,7 @@ public class Client extends Observable {
     final ExecutorService exService = Executors.newSingleThreadExecutor();
     private FileHubAdapter fileHubAdapter;
     private File outputFile;
-    private final long fileSize;
+    private long fileSize;
 
     private void setState(State state) {
         this.state = state;
@@ -77,7 +78,8 @@ public class Client extends Observable {
 
             out.println(fileHubAdapter.getContractAddress());
 
-            outputFile = File.createTempFile("transfer", ".mp4", new File("/tmp/client_dl"));
+            OUTPUT_DIR.mkdirs();
+            outputFile = File.createTempFile("transfer", ".mp4", OUTPUT_DIR );
             FileOutputStream fos = new FileOutputStream(outputFile);
 
             byte[] bytes = new byte[Constants.CHUNK_SIZE];
