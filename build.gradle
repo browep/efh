@@ -34,14 +34,27 @@ dependencies {
 
 }
 
-//create a single Jar with all dependencies
+//create a single for client impl
 task clientJar(type: Jar) {
     manifest {
-        attributes 'Implementation-Title': 'EFH',
+        attributes 'Implementation-Title': 'EFH Client',
                 'Implementation-Version': version,
                 'Main-Class': 'com.github.browep.efh.ClientMain'
     }
     baseName = project.name + '-client'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
+    with jar
+}
+
+//create a single for client impl
+task serverJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': 'EFH Server',
+                'Implementation-Version': version,
+                'Main-Class': 'com.github.browep.efh.Server'
+    }
+    baseName = project.name + '-server'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
     with jar
