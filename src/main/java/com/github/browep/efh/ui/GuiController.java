@@ -12,6 +12,7 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.web3j.utils.Convert;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -23,7 +24,6 @@ public class GuiController implements Observer {
 
     private static Logger logger = LoggerFactory.getLogger(GuiController.class);
 
-    private Scene scene;
     private final Button startButton;
     private Client client;
     private final Label statusLabel;
@@ -37,7 +37,6 @@ public class GuiController implements Observer {
     private EventHandler<ActionEvent> doResume;
 
     public GuiController(Scene scene, Client client) {
-        this.scene = scene;
 
         contractTextField = (TextField) scene.lookup("#contract_address_field");
         filePathField = (TextField) scene.lookup("#file_location_field");
@@ -89,11 +88,11 @@ public class GuiController implements Observer {
         long totalReceivedBytes = client.getTotalReceivedBytes();
         long totalFileBytes = client.getTotalFileBytes();
         downloadProgress.setProgress(BigDecimal.valueOf(totalReceivedBytes).divide(BigDecimal.valueOf(totalFileBytes), 3, RoundingMode.HALF_EVEN).doubleValue());
-        downloadLabel.setText(totalReceivedBytes + " / " + totalFileBytes + " bytes");
+        downloadLabel.setText(humanReadableByteCount(totalReceivedBytes) + " / " + humanReadableByteCount(totalFileBytes));
 
         BigInteger weiSent = client.getWeiSent();
         BigInteger fileCostInWei = client.fileCostInWei();
-        etherLabel.setText(fileCostInWei.subtract(weiSent) + " / " + fileCostInWei + " Wei");
+        etherLabel.setText(Convert.fromWei(new BigDecimal(fileCostInWei.subtract(weiSent)), Convert.Unit.ETHER) + " / " + Convert.fromWei(new BigDecimal(fileCostInWei), Convert.Unit.ETHER) + " Eth");
         etherProgress.setProgress(1 - new BigDecimal(weiSent).divide(BigDecimal.valueOf(fileCostInWei.longValue()), 3, RoundingMode.HALF_EVEN).doubleValue());
 
         if (client.getContractAddress() != null) {
@@ -104,6 +103,19 @@ public class GuiController implements Observer {
             filePathField.setText(client.getDlFilePath());
         }
 
+        if (state == Client.State.DONE) {
+            startButton.setDisable(true);
+        }
+
+    }
+
+    public static String humanReadableByteCount(long bytes) {
+        boolean si = false;
+        int unit = si ? 1000 : 1024;
+        if (bytes < unit) return bytes + " B";
+        int exp = (int) (Math.log(bytes) / Math.log(unit));
+        String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp-1) + (si ? "" : "i");
+        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
     }
 
 
