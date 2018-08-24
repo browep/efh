@@ -39,7 +39,9 @@ public class GuiController implements Observer {
     public GuiController(Scene scene, Client client) {
 
         contractTextField = (TextField) scene.lookup("#contract_address_field");
+        contractTextField.setDisable(true);
         filePathField = (TextField) scene.lookup("#file_location_field");
+        filePathField.setDisable(true);
 
         startButton = (Button) scene.lookup("#start");
         statusLabel = (Label) scene.lookup("#status");
@@ -97,10 +99,12 @@ public class GuiController implements Observer {
 
         if (client.getContractAddress() != null) {
             contractTextField.setText(client.getContractAddress());
+            contractTextField.setDisable(false);
         }
 
         if (client.getDlFilePath() != null) {
             filePathField.setText(client.getDlFilePath());
+            filePathField.setDisable(false);
         }
 
         if (state == Client.State.DONE) {
