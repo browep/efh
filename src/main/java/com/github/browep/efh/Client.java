@@ -11,6 +11,8 @@ import java.net.Socket;
 import java.util.Observable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Client extends Observable {
 
@@ -27,7 +29,8 @@ public class Client extends Observable {
     private File outputFile;
     private long fileSize;
     private Thread thread;
-    private volatile Object waitLock = null;
+
+    private ReentrantLock lock = new ReentrantLock();
 
     private void setState(State state) {
         this.state = state;
@@ -64,15 +67,11 @@ public class Client extends Observable {
     }
 
     public void pause() {
-        waitLock = new Object();
+        lock.lock();
     }
 
     public void resume() {
-        if (waitLock != null) {
-            waitLock.notifyAll();
-        } else {
-            logger.error("waitLock was null");
-        }
+        lock.unlock();
     }
 
     private void execute() {
@@ -103,12 +102,17 @@ public class Client extends Observable {
             setState(State.RECEIVING_FILE);
             while ((val = in.read(bytes, 0, bytes.length)) > 0 && totalWeiSent.compareTo(fileCostInWei()) <= 0) {
 
-                if (waitLock != null) {
+                if (lock.isLocked()) {
                     logger.info("waiting");
-                    setState(State.PAUSED);
-                    waitLock.wait();
-                    waitLock = null;
-                    logger.info("continuing");
+
+                    lock.lock();
+                    try {
+                        setState(State.PAUSED);
+                        logger.info("continuing");
+                        setState(State.RECEIVING_FILE);
+                    } finally {
+                        lock.unlock();
+                    }
                 }
 
                 fos.write(bytes, 0, val);
