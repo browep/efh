@@ -25,7 +25,11 @@
             <Label text="File Download Location:"/>
             <TextField id="file_location_field" prefWidth="350"/>
         </HBox>
+
         <AnchorPane fx:id="download_label_container" prefWidth="${download_label_container.parent.width}">
+            <padding>
+                <Insets top="80"/>
+            </padding>
             <Label AnchorPane.leftAnchor="0">File Download</Label>
             <Label fx:id="download_count" AnchorPane.rightAnchor="0"/>
         </AnchorPane>
@@ -34,7 +38,8 @@
         <AnchorPane fx:id="ether_label_container" prefWidth="${download_label_container.parent.width}">
             <Label AnchorPane.leftAnchor="0">Ether Left</Label>
             <Label fx:id="ether_count" AnchorPane.rightAnchor="0"/>
-        </AnchorPane>        <ProgressBar fx:id="ether_sent_progress"  prefWidth="${ether_sent_progress.parent.width}" progress="1.0" />
+        </AnchorPane>
+        <ProgressBar fx:id="ether_sent_progress"  prefWidth="${ether_sent_progress.parent.width}" progress="1.0" />
 
     </VBox>
 
