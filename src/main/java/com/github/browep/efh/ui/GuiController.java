@@ -2,6 +2,8 @@ package com.github.browep.efh.ui;
 
 import com.github.browep.efh.Client;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.NodeOrientation;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -31,6 +33,8 @@ public class GuiController implements Observer {
     private final TextField filePathField;
     private final Label downloadLabel;
     private final Label etherLabel;
+    private EventHandler<ActionEvent> doPause;
+    private EventHandler<ActionEvent> doResume;
 
     public GuiController(Scene scene, Client client) {
         this.scene = scene;
@@ -49,16 +53,28 @@ public class GuiController implements Observer {
         this.client = client;
         client.addObserver(this);
 
+        doPause = event1 -> {
+            client.pause();
+            startButton.setOnAction(doResume);
+            startButton.setText("Resume");
+        };
+
+        doResume = event1 -> {
+            client.resume();
+            startButton.setOnAction(doPause);
+            startButton.setText("Pause");
+        };
+
         startButton.setOnAction(
                 event -> {
                     logger.info("starting download");
                     client.start();
+                    startButton.setOnAction(doPause);
+                    startButton.setText("Pause");
                 }
-
         );
 
         update(client, null);
-
     }
 
     @Override

@@ -26,6 +26,8 @@ public class Client extends Observable {
     private FileHubAdapter fileHubAdapter;
     private File outputFile;
     private long fileSize;
+    private Thread thread;
+    private volatile Object waitLock = null;
 
     private void setState(State state) {
         this.state = state;
@@ -35,7 +37,7 @@ public class Client extends Observable {
 
     public enum State {
         NOT_STARTED("Not Started"), CONNECTED_TO_SERVER("Connected to Server"), CONTRACT_CREATED("Contract Created"),
-        RECEIVING_FILE("Receiving File"), SAVING_FILE("Saving File"), DONE("Done");
+        RECEIVING_FILE("Receiving File"), SAVING_FILE("Saving File"), DONE("Done"), PAUSED("Paused");
 
         public final String displayName;
 
@@ -57,9 +59,20 @@ public class Client extends Observable {
     }
 
     public void start() {
-
-        Thread thread = new Thread(this::execute);
+        thread = new Thread(this::execute);
         thread.start();
+    }
+
+    public void pause() {
+        waitLock = new Object();
+    }
+
+    public void resume() {
+        if (waitLock != null) {
+            waitLock.notifyAll();
+        } else {
+            logger.error("waitLock was null");
+        }
     }
 
     private void execute() {
@@ -89,6 +102,14 @@ public class Client extends Observable {
             logger.info("Receiving the file");
             setState(State.RECEIVING_FILE);
             while ((val = in.read(bytes, 0, bytes.length)) > 0 && totalWeiSent.compareTo(fileCostInWei()) <= 0) {
+
+                if (waitLock != null) {
+                    logger.info("waiting");
+                    setState(State.PAUSED);
+                    waitLock.wait();
+                    waitLock = null;
+                    logger.info("continuing");
+                }
 
                 fos.write(bytes, 0, val);
                 fos.flush();
@@ -159,5 +180,10 @@ public class Client extends Observable {
     @Nullable
     public String getDlFilePath() {
         return outputFile != null ? outputFile.getAbsolutePath() : null;
+    }
+
+    @Nullable
+    public Thread getThread() {
+        return thread;
     }
 }
