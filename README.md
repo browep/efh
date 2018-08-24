@@ -6,7 +6,7 @@ A server and client implementation for using the ethereum blockchain to trustles
 
 ### Goals
 
-* Show proof-of-concept of an ethereum payment channel using Java an Web3J
+* Show proof-of-concept of an ethereum payment channel using Java and Web3J
 * Include a visual representation of a payment channel state
 
 ### Requirements
