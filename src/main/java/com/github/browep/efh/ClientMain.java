@@ -1,7 +1,6 @@
 package com.github.browep.efh;
 
 import com.github.browep.efh.ui.Gui;
-import javafx.application.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,16 +10,17 @@ public class ClientMain {
 
     public static void main(String[] args) {
 
-        if (args.length != 2) {
+        if (args.length != 3) {
             logger.error(
-                    "Usage: java Client <host name> <port number>");
+                    "Usage: java Client <host name> <port number> <file size in bytes>");
             System.exit(1);
         }
 
         String hostName = args[0];
         int portNumber = Integer.parseInt(args[1]);
+        long fileSizeBytes = Long.parseLong(args[2]);
 
-        Client client = new Client(hostName, portNumber, 100);
+        Client client = new Client(hostName, portNumber, fileSizeBytes);
 
         Gui.construct(client);
 

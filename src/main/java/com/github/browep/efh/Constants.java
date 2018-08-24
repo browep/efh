@@ -15,5 +15,4 @@ public class Constants {
 
 
     public static final int CHUNK_SIZE = 1024 * 1024 * 10;
-    public static final long FILE_SIZE = 155611039L;
 }

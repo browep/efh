@@ -11,7 +11,6 @@ import java.net.Socket;
 import java.util.Observable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Client extends Observable {
@@ -20,7 +19,6 @@ public class Client extends Observable {
     private static Logger logger = LoggerFactory.getLogger(Client.class);
     private String hostName;
     private int portNumber;
-    private int desiredPercent;
     private long totalReceivedBytes = 0;
     private BigInteger totalWeiSent = BigInteger.ZERO;
 
@@ -52,13 +50,10 @@ public class Client extends Observable {
 
     private State state = State.NOT_STARTED;
 
-    public Client(String hostName, int portNumber, int desiredPercent) {
+    public Client(String hostName, int portNumber, long fileSizeBytes) {
         this.hostName = hostName;
         this.portNumber = portNumber;
-        this.desiredPercent = desiredPercent;
-
-        fileSize = Constants.FILE_SIZE;
-
+        this.fileSize = fileSizeBytes;
     }
 
     public void start() {
@@ -165,7 +160,7 @@ public class Client extends Observable {
     }
 
     public long getTotalFileBytes() {
-        return Constants.FILE_SIZE;
+        return fileSize;
     }
 
     public BigInteger getWeiSent() {
@@ -186,8 +181,4 @@ public class Client extends Observable {
         return outputFile != null ? outputFile.getAbsolutePath() : null;
     }
 
-    @Nullable
-    public Thread getThread() {
-        return thread;
-    }
 }

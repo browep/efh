@@ -57,15 +57,17 @@ public class Server {
 
     public static void main(String[] args) {
 
-        if (args.length != 2) {
-            logger.error("Usage: java Server <port number> <sleep millis>");
+        if (args.length != 3) {
+            logger.error("Usage: java Server <port number> <sleep millis> <file to serve>");
             System.exit(1);
         }
 
         int portNumber = Integer.parseInt(args[0]);
         sleepMillis = Long.parseLong(args[1]);
+        String fileName = args[2];
 
         logger.info("Server listening: " + portNumber);
+        logger.info("Serving: " + fileName);
 
         try (ServerSocket serverSocket = new ServerSocket(portNumber);
              Socket clientSocket = serverSocket.accept();
@@ -88,7 +90,7 @@ public class Server {
             );
 
             if (contractVerified) {
-                String redeemTx = sendFile(clientOutputStream, bufferedReader, fileHubAdapter);
+                String redeemTx = sendFile(clientOutputStream, bufferedReader, fileHubAdapter, new File(fileName));
                 clientSocket.close();
 
                 logger.info("sent transaction: " + redeemTx);
@@ -106,10 +108,8 @@ public class Server {
         }
     }
 
-    private static String sendFile(OutputStream clientOutputStream, BufferedReader bufferedReader, FileHubAdapter fileHubAdapter) throws IOException {
-        String fileName = "/Users/paulbrower/movie.mp4";
+    private static String sendFile(OutputStream clientOutputStream, BufferedReader bufferedReader, FileHubAdapter fileHubAdapter, File file) throws IOException {
 
-        File file = new File(fileName);
         InputStream inputStream = new FileInputStream(file);
 
         logger.info("Sending file: " + file.getAbsolutePath());
