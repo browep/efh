@@ -16,7 +16,7 @@ A server and client implementation for using the ethereum blockchain to trustles
 
 ### Configure
 
-edit `src/main/resources/config.properties` and update the private and public key of the server and client.  Or you can configure ganache to use the mnemonic `candy maple cake sugar pudding cream honey rich smooth crumble sweet treat` and that will generate the pub/private keys already in the config file.  The specified mnemonic is require for the tests to pass.
+edit `src/main/resources/config.properties` and update the private and public key of the server and client.  Or you can configure ganache to use the mnemonic `candy maple cake sugar pudding cream honey rich smooth crumble sweet treat` and that will generate the pub/private keys already in the config file.  The specified mnemonic is required for the tests to pass.
 
 ### Build
 
