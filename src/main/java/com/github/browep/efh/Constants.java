@@ -29,10 +29,10 @@ public class Constants {
             logger.info("test.server_addr=    " + prop.get("test.server_addr"));
 
             ETH_NODE_URL = prop.getProperty("test.eth_node_url");
-            CLIENT_PRIV_KEY = (String) prop.get("test.client_priv_key");
-            CLIENT_ADDR = (String) prop.get("test.client_addr");
-            SERVER_PRIV_KEY = (String) prop.get("test.server_priv_key");
-            SERVER_ADDR = (String) prop.get("test.server_addr");
+            CLIENT_PRIV_KEY = prop.getProperty("test.client_priv_key");
+            CLIENT_ADDR = prop.getProperty("test.client_addr").trim().toLowerCase();
+            SERVER_PRIV_KEY = prop.getProperty("test.server_priv_key");
+            SERVER_ADDR = prop.getProperty("test.server_addr").trim().toLowerCase();
 
         } catch (IOException ex) {
             logger.error(ex.getMessage(), ex);

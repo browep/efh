@@ -34,16 +34,16 @@ public class TransferProcessor {
         BigInteger minExpiration = fileHubAdapter.getCurrentBlock().add(numTimeoutblocks);
         String contractServerAddress = fileHubAdapter.getServerAddr();
         if (fileHubAdapter.getContractBalance().compareTo(expectedWei) < 0) {
-            System.err.println("contract balance too low.  contract balance: " + fileHubAdapter.getContractBalance() + " expectedWei: " + expectedWei);
+            logger.error("contract balance too low.  contract balance: " + fileHubAdapter.getContractBalance() + " expectedWei: " + expectedWei);
             return false;
         } else if (fileHubAdapter.getFileHash().compareTo(expectedFileHash) != 0) {
-            System.err.println("wrong file hash. actual: " + fileHubAdapter.getFileHash() + ", expected: " + expectedFileHash);
+            logger.error("wrong file hash. actual: " + fileHubAdapter.getFileHash() + ", expected: " + expectedFileHash);
             return false;
         } else if (!expectedServerAddress.equals(contractServerAddress)) {
-            System.err.println("wrong server addr.  actual: " + contractServerAddress + ", expected: " + expectedServerAddress);
+            logger.error("wrong server addr.  actual: " + contractServerAddress + ", expected: " + expectedServerAddress);
             return false;
         } else if (minExpiration.compareTo(fileHubAdapter.getExpirationBlock()) > 0) {
-            System.err.println("expiration not far enough in the future. min: " + minExpiration + ", contract: " + fileHubAdapter.getExpirationBlock());
+            logger.error("expiration not far enough in the future. min: " + minExpiration + ", contract: " + fileHubAdapter.getExpirationBlock());
             return false;
         } else {
             return true;
