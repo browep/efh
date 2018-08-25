@@ -30,7 +30,7 @@ public class FileHubAdapter {
     private BigInteger fileHash;
 
     public FileHubAdapter(String privKey) throws IOException {
-        web3j = Web3j.build(new HttpService("http://localhost:7545"));
+        web3j = Web3j.build(new HttpService(Constants.ETH_NODE_URL));
         log.info("Connected to Ethereum client version: "
                 + web3j.web3ClientVersion().send().getWeb3ClientVersion());
 

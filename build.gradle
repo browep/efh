@@ -61,3 +61,7 @@ task serverJar(type: Jar) {
 }
 
 build.dependsOn(serverJar, clientJar)
+
+test {
+    systemProperties(System.getProperties())
+}

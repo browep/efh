@@ -1,10 +1,12 @@
 package com.github.browep.efh.data;
 
+import com.github.browep.efh.BaseTest;
 import com.github.browep.efh.Constants;
 import com.github.browep.efh.FileHubAdapter;
 import org.ethereum.crypto.ECKey;
 import org.ethereum.util.ByteUtil;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,9 +15,15 @@ import org.web3j.utils.Numeric;
 import java.io.IOException;
 import java.math.BigInteger;
 
-public class TransferProcessorTest {
+public class TransferProcessorTest extends BaseTest {
 
     Logger logger = LoggerFactory.getLogger(TransferProcessorTest.class);
+
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+    }
 
     @Test
     public void serializeDeserialize_1() throws Exception {

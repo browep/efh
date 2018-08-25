@@ -4,6 +4,7 @@ import org.apache.commons.logging.LogFactory;
 import org.ethereum.crypto.ECKey;
 import org.ethereum.util.ByteUtil;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,9 +14,15 @@ import org.web3j.utils.Numeric;
 import java.io.IOException;
 import java.math.BigInteger;
 
-public class FileTransferContractTest {
+public class FileTransferContractTest extends BaseTest {
 
     Logger logger = LoggerFactory.getLogger(FileTransferContractTest.class);
+
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+    }
 
     @Test
     public void canConnect() throws IOException {
