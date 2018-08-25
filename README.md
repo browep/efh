@@ -14,6 +14,10 @@ A server and client implementation for using the ethereum blockchain to trustles
 * Java 1.8 JDK
 * A local Ganache ethereum node running on `localhost:7545`.  Note: checkout [Ganache](https://truffleframework.com/ganache) for an easy local dev node.  The client and server private keys are hard coded in `Constants.java` for easy deployment and are specific to Ganache.
 
+### Configure
+
+edit `src/main/resources/config.properties` and update the private and public key of the server and client.  Or you can configure ganache to use the mnemonic `candy maple cake sugar pudding cream honey rich smooth crumble sweet treat` and that will generate the pub/private keys already in the config file.  The specified mnemonic is require for the tests to pass.
+
 ### Build
 
 `./gradle clean build`
