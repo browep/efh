@@ -1,6 +1,8 @@
 pragma solidity ^0.4.8;
 
 // file transfer contract
+// Warning:  this contract is for explanation or educational purposes.  It is not for production use.  There are known
+// vulnerabilities that are left in order to show concepts
 
 contract filetransfer {
 
@@ -46,7 +48,7 @@ contract filetransfer {
 
     function clawback() public {
         if (msg.sender != client) throw;
-        if (block.number < expirationBlock) throw;
+        if (block.number > expirationBlock) throw;
 
         selfdestruct(client);
     }
